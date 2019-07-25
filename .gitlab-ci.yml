@@ -53,7 +53,7 @@ variables:
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
   only:
     - merge_requests
-    - master
+    - as/master
 
 .build_cross_vars: &build_cross_vars
     AUTOWARE_TARGET_ARCH: aarch64
@@ -78,7 +78,7 @@ variables:
         -DCMAKE_FIND_ROOT_PATH=${CI_PROJECT_DIR}/install
   only:
     - merge_requests
-    - master
+    - as/master
 
 build_kinetic:
   stage: build
@@ -130,4 +130,4 @@ pages:
     paths:
       - public
   only:
-    - master
+    - as/master

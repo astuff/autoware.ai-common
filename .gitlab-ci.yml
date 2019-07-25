@@ -52,7 +52,7 @@ variables:
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
   only:
     - merge_requests
-    - master
+    - as/master
 
 .build_cuda: &build_cuda
   before_script:
@@ -102,7 +102,7 @@ variables:
         -DCMAKE_FIND_ROOT_PATH=${CI_PROJECT_DIR}/install
   only:
     - merge_requests
-    - master
+    - as/master
 
 build_kinetic:
   stage: build
@@ -164,4 +164,4 @@ pages:
     paths:
       - public
   only:
-    - master
+    - as/master

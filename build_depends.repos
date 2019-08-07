@@ -1,5 +1,6 @@
 repositories:
-  messages:
-    type: git
-    url: https://gitlab.com/autowarefoundation/autoware.ai/messages.git
-    version: master
+# Uncomment below lines to pull messages repo manually
+#  messages:
+#    type: git
+#    url: https://gitlab.com/autowarefoundation/autoware.ai/messages.git
+#    version: master

@@ -15,6 +15,7 @@
  */
 
 #include <gnss/geo_pos_conv.hpp>
+#include <ros/ros.h>
 
 geo_pos_conv::geo_pos_conv()
     : m_x(0)
@@ -204,6 +205,8 @@ void geo_pos_conv::set_llh_nmea_degrees(double latd, double lond, double h)
   double lat, lad, lod, lon;
   // 1234.56 -> 12'34.56 -> 12+ 34.56/60
 
+  ROS_INFO("latd: %f / lond: %f / h: %f", latd, lond, h);
+
   lad = (latd > 0) ? floor(latd / 100.) : ceil(latd / 100.);
   lat = latd - lad * 100.;
   lod = (lond > 0) ? floor(lond / 100.) : ceil(lond / 100.);
@@ -324,6 +327,8 @@ void geo_pos_conv::conv_llh2xyz(void)
         Pmo;
 
   m_z = m_h;
+
+  ROS_INFO("m_x: %f / m_y: %f / m_z: %f", m_x, m_y, m_z);
 }
 
 void geo_pos_conv::conv_xyz2llh(void)

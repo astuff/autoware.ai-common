@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <gtest/gtest.h>
 
-#include <gnss/geo_pos_conv.hpp>
+#include "gnss/geo_pos_conv.hpp"
 
 TEST(TestSuite, llhNmeaDegreesTest) {
 

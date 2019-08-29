@@ -76,7 +76,9 @@ void RateChecker::update() {
   mtx_.lock();
   std::vector<ros::Time> buffer;
   for (auto data_itr = data_.begin(); data_itr != data_.end(); data_itr++) {
-    if (*data_itr > ros::Time::now() - ros::Duration(buffer_length_)) {
+    double t_delta = ros::Time::now().toSec() - buffer_length_;
+    
+    if (t_delta > 0 && *data_itr > ros::Time(t_delta)) {
       buffer.push_back(*data_itr);
     }
   }

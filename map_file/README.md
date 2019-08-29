@@ -1,5 +1,7 @@
 # map_file package
+
 ## points_map_filter
+
 ### feature
 points_map_filter_node subscribe pointcloud maps and current pose, the node extract pointcloud near to the current pose.
 
@@ -12,7 +14,7 @@ points_map_filter_node subscribe pointcloud maps and current pose, the node extr
 
 #### parameters
 load_grid_size (double) : grid size of submap.  
-load_trigger_distance (double) : if the car moves load_trigger_distance(m), the map filter publish filtered submap. 
+load_trigger_distance (double) : if the car moves load_trigger_distance(m), the map filter publish filtered submap.
 
 ### how it works
 map_filter_node relay /points_map topic until it recieves /current_pose topic.  
@@ -21,10 +23,17 @@ Then, the /current_pose topic recieved, the map_filter_node publish submap.
 ## demonstration
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/LpKIuI5b4DU/0.jpg)](http://www.youtube.com/watch?v=LpKIuI5b4DU)
 
+## vector_map_loader
+
+This node loads a vector map from csv files.
+
+#### parameters
+`map_dir` - Leave empty to load files via args, otherwise specify the path to the directory containing vector map csv files.
+
 ## lanelet2_map_loader
 ### Feature
 lanelet2_map_loader loads Lanelet2 file and publish the map data as autoware_lanelet2_msgs/MapBin message.
-The node projects lan/lon coordinates into MGRS coordinates. 
+The node projects lan/lon coordinates into MGRS coordinates.
 
 ### How to run
 Run from CLI:
@@ -37,7 +46,7 @@ Run from CLI:
 ### Feature
 lanelet2_map_visualization visualizes autoware_lanelet2_msgs/MapBin messages into visualization_msgs/MarkerArray.
 
-### How to run 
+### How to run
 Run from CLI:
 `rosrun map_file lanelet2_map_visualization`
 

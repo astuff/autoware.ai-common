@@ -922,8 +922,18 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "vector_map_loader");
   ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
 
-  if (argc < 2)
+  // Directory containing vector map csvs
+  std::string map_dir;
+  bool directory_mode = false;
+  pnh.param<std::string>("map_dir", map_dir, "");
+  if (map_dir.length() > 0)
+  {
+    directory_mode = true;
+  }
+
+  if (argc < 2 && !directory_mode)
   {
     printUsage();
     return EXIT_FAILURE;
@@ -978,6 +988,43 @@ int main(int argc, char **argv)
   stat_pub.publish(stat);
 
   std::vector<std::string> file_paths;
+  std::vector<std::string> file_names
+  {
+    "idx.csv",
+    "point.csv",
+    "vector.csv",
+    "line.csv",
+    "area.csv",
+    "pole.csv",
+    "box.csv",
+    "dtlane.csv",
+    "node.csv",
+    "lane.csv",
+    "wayarea.csv",
+    "roadedge.csv",
+    "gutter.csv",
+    "curb.csv",
+    "whiteline.csv",
+    "stopline.csv",
+    "zebrazone.csv",
+    "crosswalk.csv",
+    "road_surface_mark.csv",
+    "poledata.csv",
+    "roadsign.csv",
+    "signaldata.csv",
+    "streetlight.csv",
+    "utilitypole.csv",
+    "guardrail.csv",
+    "sidewalk.csv",
+    "driveon_portion.csv",
+    "intersection.csv",
+    "sidestrip.csv",
+    "curvemirror.csv",
+    "wall.csv",
+    "fence.csv",
+    "railroad_crossing.csv"
+  };
+
   if (mode == "download")
   {
     std::string host_name;
@@ -1011,42 +1058,6 @@ int main(int argc, char **argv)
       }
     }
 
-    std::vector<std::string> file_names
-    {
-      "idx.csv",
-      "point.csv",
-      "vector.csv",
-      "line.csv",
-      "area.csv",
-      "pole.csv",
-      "box.csv",
-      "dtlane.csv",
-      "node.csv",
-      "lane.csv",
-      "wayarea.csv",
-      "roadedge.csv",
-      "gutter.csv",
-      "curb.csv",
-      "whiteline.csv",
-      "stopline.csv",
-      "zebrazone.csv",
-      "crosswalk.csv",
-      "road_surface_mark.csv",
-      "poledata.csv",
-      "roadsign.csv",
-      "signaldata.csv",
-      "streetlight.csv",
-      "utilitypole.csv",
-      "guardrail.csv",
-      "sidewalk.csv",
-      "driveon_portion.csv",
-      "intersection.csv",
-      "sidestrip.csv",
-      "curvemirror.csv",
-      "wall.csv",
-      "fence.csv",
-      "railroad_crossing.csv"
-    };
     for (const auto& file_name : file_names)
     {
       if (gf.GetHTTPFile(remote_path + "/" + file_name) == 0)
@@ -1057,10 +1068,29 @@ int main(int argc, char **argv)
   }
   else
   {
-    for (int i = 1; i < argc; ++i)
+    if (directory_mode)
     {
-      std::string file_path(argv[i]);
-      file_paths.push_back(file_path);
+      // add slash if it doesn't exist
+      if (map_dir.back() != '/')
+      {
+        map_dir.append("/");
+      }
+
+      // Add all possible file paths for csv files.
+      for (auto file_name : file_names)
+      {
+        std::string file_path = map_dir;
+        file_path.append(file_name);
+        file_paths.push_back(file_path);
+      }
+    }
+    else
+    {
+      for (int i = 1; i < argc; ++i)
+      {
+        std::string file_path(argv[i]);
+        file_paths.push_back(file_path);
+      }
     }
   }
 

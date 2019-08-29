@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="map_file" type="vector_map_loader" name="vector_map_loader" output="screen">
+    <param name="map_dirs" value="$(env HOME)/.autoware/data/map/vector_map/" />
+  </node>
+</launch>

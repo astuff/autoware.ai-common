@@ -28,7 +28,16 @@ Then, the /current_pose topic recieved, the map_filter_node publish submap.
 This node loads a vector map from csv files.
 
 #### parameters
-`map_dir` - Leave empty to load files via args, otherwise specify the path to the directory containing vector map csv files.
+
+- `load_mode` - Set the mode of operation for the node. Possible values are:
+    - "file" - Default operation mode, requires each csv file to be specified in args.
+    - "directory" - Loads all csv files with vector map names in the directory specified by the `map_dir` parameter.
+    - "download" - Downloads the vector map csvs from a webhost, use the args to specify
+- `map_dir` - Specify the path to the directory containing vector map csv files. Only used in "directory" mode.
+- `host` - Hostname of the webserver. Only used in "download" mode.
+- `port` - Port of the webserver. Only used in "download" mode.
+- `username` - Username. Only used in "download" mode.
+- `password` - Password. Only used in "download" mode.
 
 ## lanelet2_map_loader
 ### Feature

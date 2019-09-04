@@ -99,6 +99,13 @@ using vector_map::createPoleMarker;
 
 namespace
 {
+
+enum LoadMode {
+  FILE,
+  DIRECTORY,
+  DOWNLOAD
+};
+
 void printUsage()
 {
   ROS_ERROR_STREAM("Usage:");
@@ -924,27 +931,53 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 
+  LoadMode load_mode = LoadMode::FILE;
+  if (pnh.hasParam("load_mode"))
+  {
+    // Set mode based on rosparam
+    std::string load_mode_param;
+    pnh.getParam("load_mode", load_mode_param);
+    if (load_mode_param == "file")
+    {
+      load_mode = LoadMode::FILE;
+    }
+    else if (load_mode_param == "directory")
+    {
+      load_mode = LoadMode::DIRECTORY;
+    }
+    else if (load_mode_param == "download")
+    {
+      load_mode = LoadMode::DOWNLOAD;
+    }
+    else
+    {
+      printUsage();
+    }
+  }
+  else
+  {
+    // Set mode based on args
+    if (argc < 2)
+    {
+      printUsage();
+      return EXIT_FAILURE;
+    }
+
+    // std::string mode(argv[1]);
+    if (strcmp(argv[1], "download") == 0)
+    {
+      load_mode = LoadMode::DOWNLOAD;
+      if (argc < 4)
+      {
+        printUsage();
+        return EXIT_FAILURE;
+      }
+    }
+  }
+
   // Directory containing vector map csvs
   std::string map_dir;
-  bool directory_mode = false;
   pnh.param<std::string>("map_dir", map_dir, "");
-  if (map_dir.length() > 0)
-  {
-    directory_mode = true;
-  }
-
-  if (argc < 2 && !directory_mode)
-  {
-    printUsage();
-    return EXIT_FAILURE;
-  }
-
-  std::string mode(argv[1]);
-  if (mode == "download" && argc < 4)
-  {
-    printUsage();
-    return EXIT_FAILURE;
-  }
 
   // Vector map publishers will be initialized later as data is loaded.
   ros::Publisher area_pub;
@@ -1008,7 +1041,7 @@ int main(int argc, char **argv)
     "point.csv",
     "pole.csv",
     "poledata.csv",
-    "railroad_crossing.csv"
+    "railroad_crossing.csv",
     "road_surface_mark.csv",
     "roadedge.csv",
     "roadsign.csv",
@@ -1022,19 +1055,20 @@ int main(int argc, char **argv)
     "wall.csv",
     "wayarea.csv",
     "whiteline.csv",
-    "zebrazone.csv",
+    "zebrazone.csv"
   };
 
-  if (mode == "download")
+  if (load_mode == LoadMode::DOWNLOAD)
   {
+    ROS_INFO("Load Mode: Download");
     std::string host_name;
-    nh.param<std::string>("vector_map_loader/host_name", host_name, HTTP_HOSTNAME);
+    pnh.param<std::string>("host_name", host_name, HTTP_HOSTNAME);
     int port;
-    nh.param<int>("vector_map_loader/port", port, HTTP_PORT);
+    pnh.param<int>("port", port, HTTP_PORT);
     std::string user;
-    nh.param<std::string>("vector_map_loader/user", user, HTTP_USER);
+    pnh.param<std::string>("user", user, HTTP_USER);
     std::string password;
-    nh.param<std::string>("vector_map_loader/password", password, HTTP_PASSWORD);
+    pnh.param<std::string>("password", password, HTTP_PASSWORD);
     GetFile gf = GetFile(host_name, port, user, password);
 
     std::string remote_path = "/data/map";
@@ -1066,31 +1100,30 @@ int main(int argc, char **argv)
         ROS_ERROR_STREAM("download failure: " << remote_path + "/" + file_name);
     }
   }
-  else
+  else if (load_mode == LoadMode::DIRECTORY)
   {
-    if (directory_mode)
+    ROS_INFO("Load Mode: Directory");
+    // add slash if it doesn't exist
+    if (map_dir.back() != '/')
     {
-      // add slash if it doesn't exist
-      if (map_dir.back() != '/')
-      {
-        map_dir.append("/");
-      }
-
-      // Add all possible file paths for csv files.
-      for (auto file_name : file_names)
-      {
-        std::string file_path = map_dir;
-        file_path.append(file_name);
-        file_paths.push_back(file_path);
-      }
+      map_dir.append("/");
     }
-    else
+
+    // Add all possible file paths for csv files.
+    for (auto file_name : file_names)
     {
-      for (int i = 1; i < argc; ++i)
-      {
-        std::string file_path(argv[i]);
-        file_paths.push_back(file_path);
-      }
+      std::string file_path = map_dir;
+      file_path.append(file_name);
+      file_paths.push_back(file_path);
+    }
+  }
+  else if (load_mode == LoadMode::FILE)
+  {
+    ROS_INFO("Load Mode: File");
+    for (int i = 1; i < argc; ++i)
+    {
+      std::string file_path(argv[i]);
+      file_paths.push_back(file_path);
     }
   }
 

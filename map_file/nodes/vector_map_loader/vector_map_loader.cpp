@@ -947,38 +947,38 @@ int main(int argc, char **argv)
   }
 
   // Vector map publishers will be initialized later as data is loaded.
-  ros::Publisher point_pub;
-  ros::Publisher vector_pub;
-  ros::Publisher line_pub;
   ros::Publisher area_pub;
-  ros::Publisher pole_pub;
   ros::Publisher box_pub;
-  ros::Publisher dtlane_pub;
-  ros::Publisher node_pub;
-  ros::Publisher lane_pub;
-  ros::Publisher way_area_pub;
-  ros::Publisher road_edge_pub;
-  ros::Publisher gutter_pub;
-  ros::Publisher curb_pub;
-  ros::Publisher white_line_pub;
-  ros::Publisher stop_line_pub;
-  ros::Publisher zebra_zone_pub;
+  ros::Publisher cross_road_pub;
   ros::Publisher cross_walk_pub;
+  ros::Publisher curb_pub;
+  ros::Publisher curve_mirror_pub;
+  ros::Publisher drive_on_portion_pub;
+  ros::Publisher dtlane_pub;
+  ros::Publisher fence_pub;
+  ros::Publisher guard_rail_pub;
+  ros::Publisher gutter_pub;
+  ros::Publisher lane_pub;
+  ros::Publisher line_pub;
+  ros::Publisher node_pub;
+  ros::Publisher point_pub;
+  ros::Publisher pole_pub;
+  ros::Publisher rail_crossing_pub;
+  ros::Publisher road_edge_pub;
   ros::Publisher road_mark_pub;
   ros::Publisher road_pole_pub;
   ros::Publisher road_sign_pub;
+  ros::Publisher side_strip_pub;
+  ros::Publisher side_walk_pub;
   ros::Publisher signal_pub;
+  ros::Publisher stop_line_pub;
   ros::Publisher street_light_pub;
   ros::Publisher utility_pole_pub;
-  ros::Publisher guard_rail_pub;
-  ros::Publisher side_walk_pub;
-  ros::Publisher drive_on_portion_pub;
-  ros::Publisher cross_road_pub;
-  ros::Publisher side_strip_pub;
-  ros::Publisher curve_mirror_pub;
+  ros::Publisher vector_pub;
   ros::Publisher wall_pub;
-  ros::Publisher fence_pub;
-  ros::Publisher rail_crossing_pub;
+  ros::Publisher way_area_pub;
+  ros::Publisher white_line_pub;
+  ros::Publisher zebra_zone_pub;
 
   ros::Publisher marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>("vector_map", 1, true);
   ros::Publisher stat_pub = nh.advertise<std_msgs::Bool>("vmap_stat", 1, true);
@@ -990,39 +990,39 @@ int main(int argc, char **argv)
   std::vector<std::string> file_paths;
   std::vector<std::string> file_names
   {
-    "idx.csv",
-    "point.csv",
-    "vector.csv",
-    "line.csv",
     "area.csv",
-    "pole.csv",
     "box.csv",
-    "dtlane.csv",
-    "node.csv",
-    "lane.csv",
-    "wayarea.csv",
-    "roadedge.csv",
-    "gutter.csv",
-    "curb.csv",
-    "whiteline.csv",
-    "stopline.csv",
-    "zebrazone.csv",
     "crosswalk.csv",
-    "road_surface_mark.csv",
+    "curb.csv",
+    "curvemirror.csv",
+    "driveon_portion.csv",
+    "dtlane.csv",
+    "fence.csv",
+    "guardrail.csv",
+    "gutter.csv",
+    "idx.csv",
+    "intersection.csv",
+    "lane.csv",
+    "line.csv",
+    "node.csv",
+    "point.csv",
+    "pole.csv",
     "poledata.csv",
+    "railroad_crossing.csv"
+    "road_surface_mark.csv",
+    "roadedge.csv",
     "roadsign.csv",
+    "sidestrip.csv",
+    "sidewalk.csv",
     "signaldata.csv",
+    "stopline.csv",
     "streetlight.csv",
     "utilitypole.csv",
-    "guardrail.csv",
-    "sidewalk.csv",
-    "driveon_portion.csv",
-    "intersection.csv",
-    "sidestrip.csv",
-    "curvemirror.csv",
+    "vector.csv",
     "wall.csv",
-    "fence.csv",
-    "railroad_crossing.csv"
+    "wayarea.csv",
+    "whiteline.csv",
+    "zebrazone.csv",
   };
 
   if (mode == "download")

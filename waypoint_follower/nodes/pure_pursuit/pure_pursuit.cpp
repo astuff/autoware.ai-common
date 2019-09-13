@@ -18,38 +18,26 @@
 
 namespace waypoint_follower
 {
-// Constructor
-PurePursuit::PurePursuit()
-  : RADIUS_MAX_(9e10)
-  , KAPPA_MIN_(1 / RADIUS_MAX_)
-  , is_linear_interpolation_(false)
-  , next_waypoint_number_(-1)
-  , lookahead_distance_(0)
-  , current_linear_velocity_(0)
-  , minimum_lookahead_distance_(6)
-{
-  
-}
-
-// Destructor
-PurePursuit::~PurePursuit()
-{
-}
-
-double PurePursuit::calcCurvature(geometry_msgs::Point target) const
+// Simple estimation of curvature given two points.
+// 1. Convert the target point from map frame into the current pose frame,
+//    so it has a local coorinates of (pt.x, pt.y, pt.z).
+// 2. Assume it is a 2nd order polynomial passing through the two points:
+//    y = a*x^2 + b*x + c. Taking the current pose as the vertex of the
+//    polynomial, it becomes y = a*x^2. The signed curvature of a general function 
+//    y=f(x) is kappa = y''/((1+y'^2)^(3/2)). 
+//    In the case of y = a*x^2, the curvature at the origin becomes
+//    kappa = 2*a where a = pt.y / (pt.x * pt.x).
+double PurePursuit::calcCurvature(const geometry_msgs::Point& target) const
 {
   double kappa;
-  double denominator = pow(getPlaneDistance(target, current_pose_.position), 2);
-  double numerator = 2 * calcRelativeCoordinate(target, current_pose_).y;
-
-  if (denominator != 0)
+  geometry_msgs::Point pt = calcRelativeCoordinate(target, current_pose_);
+  double denominator = pt.x * pt.x;
+  double numerator = 2.0 * pt.y;
+  if (denominator != 0.0)
     kappa = numerator / denominator;
   else
   {
-    if (numerator > 0)
-      kappa = KAPPA_MIN_;
-    else
-      kappa = -KAPPA_MIN_;
+    kappa = numerator > 0.0 ? KAPPA_MIN_ : -KAPPA_MIN_;
   }
   ROS_INFO("kappa : %lf", kappa);
   return kappa;

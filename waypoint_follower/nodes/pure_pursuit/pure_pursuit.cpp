@@ -22,16 +22,19 @@ namespace waypoint_follower
 // 1. Convert the target point from map frame into the current pose frame,
 //    so it has a local coorinates of (pt.x, pt.y, pt.z).
 // 2. Assume it is a 2nd order polynomial passing through the two points:
-//    y = a*x^2 + b*x + c. Taking the current pose as the vertex of the
+//    y = a*x^2 + b*x + c. 
+//    If we take the current pose as the vertex of the
 //    polynomial, it becomes y = a*x^2. The signed curvature of a general function 
-//    y=f(x) is kappa = y''/((1+y'^2)^(3/2)). 
-//    In the case of y = a*x^2, the curvature at the origin becomes
-//    kappa = 2*a where a = pt.y / (pt.x * pt.x).
+//    y=f(x) is kappa = y''/((1+y'^2)^(3/2)). In the case of y = a*x^2, the curvature
+//    at the origin becomes kappa = 2*a where a = pt.y / (pt.x * pt.x).
+// 3. If we think it is a cirle with a curvature kappa passing the two points,
+//    kappa = 2 * pt.y / (pt.x * pt.x + pt.y * pt.y)
 double PurePursuit::calcCurvature(const geometry_msgs::Point& target) const
 {
   double kappa;
   geometry_msgs::Point pt = calcRelativeCoordinate(target, current_pose_);
-  double denominator = pt.x * pt.x;
+  // double denominator = pt.x * pt.x;
+  double denominator = pt.x * pt.x + pt.y * pt.y;
   double numerator = 2.0 * pt.y;
   if (denominator != 0.0)
     kappa = numerator / denominator;
@@ -40,6 +43,7 @@ double PurePursuit::calcCurvature(const geometry_msgs::Point& target) const
     kappa = numerator > 0.0 ? KAPPA_MIN_ : -KAPPA_MIN_;
   }
   ROS_INFO("kappa : %lf", kappa);
+
   return kappa;
 }
 

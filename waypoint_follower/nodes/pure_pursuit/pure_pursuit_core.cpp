@@ -96,7 +96,7 @@ void PurePursuitNode::run()
 
     double kappa = 0;
     bool can_get_curvature = pp_.canGetCurvature(&kappa);
-    
+
     publishTwistStamped(can_get_curvature, kappa);
     publishControlCommandStamped(can_get_curvature, kappa);
     node_status_publisher_ptr_->NODE_ACTIVATE();
@@ -176,6 +176,18 @@ double PurePursuitNode::computeCommandAccel() const
   const double v0 = current_linear_velocity_;
   const double v = computeCommandVelocity();
   const double a = (v * v - v0 * v0) / (2 * x);
+  
+  // const double accel_distance = 1.0;
+  // double a = (v * v - v0 * v0) / (2 * accel_distance);
+  // const double accel_limit = 2.0;
+  // const double decel_limit = -4.0;
+  // if (a > accel_limit) {
+  //   a = accel_limit;
+  // }
+  // if (a < decel_limit) {
+  //   a = decel_limit;
+  // }
+
   return a;
 }
 

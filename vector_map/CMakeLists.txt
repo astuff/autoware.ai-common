@@ -28,12 +28,10 @@ add_library(${PROJECT_NAME}
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
-  ${vector_map_msgs_EXPORTED_TARGETS}
 )
 
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
-  ${vector_map_msgs_LIBRARIES}
 )
 
 ## Install project namespaced headers

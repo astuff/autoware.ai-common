@@ -963,7 +963,6 @@ int main(int argc, char **argv)
       return EXIT_FAILURE;
     }
 
-    // std::string mode(argv[1]);
     if (strcmp(argv[1], "download") == 0)
     {
       load_mode = LoadMode::DOWNLOAD;

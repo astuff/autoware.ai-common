@@ -32,7 +32,7 @@ add_library(amathutils_lib
   src/Amathutils.cpp
   src/kalman_filter.cpp
   src/time_delay_kalman_filter.cpp
-	src/butterworth_filter.cpp
+  src/butterworth_filter.cpp
 )
 target_link_libraries(amathutils_lib
   ${catkin_LIBRARIES}

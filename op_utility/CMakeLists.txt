@@ -6,8 +6,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(autoware_build_flags REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-	vector_map_msgs 
-	vector_map_server
+  vector_map_msgs 
+  vector_map_server
 )
 
 find_package(TinyXML REQUIRED)

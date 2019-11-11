@@ -31,8 +31,8 @@ set(PLANNERH_SRC
   src/MappingHelpers.cpp
   src/MatrixOperations.cpp
   src/PassiveDecisionMaker.cpp
-  src/PlannerH.cpp		
-  src/PlanningHelpers.cpp				
+  src/PlannerH.cpp    
+  src/PlanningHelpers.cpp        
   src/SimuDecisionMaker.cpp
   src/TrajectoryCosts.cpp
   src/TrajectoryDynamicCosts.cpp

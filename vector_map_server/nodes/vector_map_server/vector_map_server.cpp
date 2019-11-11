@@ -99,10 +99,12 @@ bool isBranchingLane(const Lane& lane)
   return lane.jct == Lane::LEFT_BRANCHING || lane.jct == Lane::RIGHT_BRANCHING || lane.jct == Lane::COMPOSITION;
 }
 
+/*
 bool isMergingLane(const Lane& lane)
 {
   return lane.jct == Lane::LEFT_MERGING || lane.jct == Lane::RIGHT_MERGING || lane.jct == Lane::COMPOSITION;
 }
+*/
 
 double computeDistance(const Point& p1, const Point& p2)
 {
@@ -312,6 +314,7 @@ Lane findNearestLane(const VectorMap& vmap, const std::vector<Lane>& lanes, cons
   return nearest_lane;
 }
 
+/*
 std::vector<Lane> findNearLanes(const VectorMap& vmap, const std::vector<Lane>& lanes, const Point& base_point,
                                 double radius)
 {
@@ -330,6 +333,7 @@ std::vector<Lane> findNearLanes(const VectorMap& vmap, const std::vector<Lane>& 
   }
   return near_lanes;
 }
+*/
 
 std::vector<Lane> createFineLanes(const VectorMap& vmap, const autoware_msgs::Lane& waypoints, double radius,
                                   int loops)

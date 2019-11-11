@@ -171,7 +171,7 @@ LaneDirection getLaneDirectionByPosition(const autoware_msgs::Lane& current_path
     return LaneDirection::Error;
   }
   LaneDirection positional_direction = LaneDirection::Error;
-  for (int i = 1; i < current_path.waypoints.size(); i++)
+  for (unsigned int i = 1; i < current_path.waypoints.size(); i++)
   {
     const geometry_msgs::Pose& prev_pose = current_path.waypoints[i - 1].pose.pose;
     const geometry_msgs::Pose& next_pose = current_path.waypoints[i].pose.pose;
@@ -205,8 +205,8 @@ LaneDirection getLaneDirectionByVelocity(const autoware_msgs::Lane& current_path
 class MinIDSearch
 {
 private:
-  double val_min_;
   int idx_min_;
+  double val_min_;
 public:
   MinIDSearch() : idx_min_(-1), val_min_(DBL_MAX){}
   void update(int index, double v)

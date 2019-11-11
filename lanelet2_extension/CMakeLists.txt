@@ -4,7 +4,7 @@ project(lanelet2_extension)
 find_package(PkgConfig)
 find_path(GeographicLib_INCLUDE_DIR GeographicLib/Config.h
   PATH_SUFFIXES GeographicLib
-  )
+)
 set(GeographicLib_INCLUDE_DIRS ${GeographicLib_INCLUDE_DIR})
 
 find_library(GeographicLib_LIBRARIES
@@ -45,7 +45,20 @@ roslint_cpp()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES lanelet2_extension_lib
-  CATKIN_DEPENDS amathutils_lib roscpp lanelet2_core lanelet2_io lanelet2_maps lanelet2_projection lanelet2_routing lanelet2_traffic_rules lanelet2_validation autoware_lanelet2_msgs autoware_msgs geometry_msgs visualization_msgs
+  CATKIN_DEPENDS
+    amathutils_lib
+    autoware_lanelet2_msgs
+    autoware_msgs
+    geometry_msgs
+    lanelet2_core
+    lanelet2_io
+    lanelet2_maps
+    lanelet2_projection
+    lanelet2_routing
+    lanelet2_traffic_rules
+    lanelet2_validation
+    roscpp
+    visualization_msgs
 )
 
 include_directories(
@@ -55,9 +68,9 @@ include_directories(
   ${PUGIXML_INCLUDE_DIRS}
 )
 
-add_definitions (${GeographicLib_DEFINITIONS})
+add_definitions(${GeographicLib_DEFINITIONS})
 
-add_library( lanelet2_extension_lib
+add_library(lanelet2_extension_lib
   lib/autoware_osm_parser.cpp
   lib/autoware_traffic_light.cpp
   lib/message_conversion.cpp
@@ -103,14 +116,44 @@ install(DIRECTORY include/${PROJECT_NAME}/
 if(CATKIN_ENABLE_TESTING)
  roslint_add_test()
  find_package(rostest REQUIRED)
- add_rostest_gtest(message_conversion-test test/test_message_conversion.test test/src/test_message_conversion.cpp)
- target_link_libraries(message_conversion-test ${catkin_LIBRARIES} lanelet2_extension_lib)
- add_rostest_gtest(projector-test test/test_projector.test test/src/test_projector.cpp)
- target_link_libraries(projector-test ${catkin_LIBRARIES} lanelet2_extension_lib)
- add_rostest_gtest(query-test test/test_query.test test/src/test_query.cpp)
- target_link_libraries(query-test ${catkin_LIBRARIES} lanelet2_extension_lib)
- add_rostest_gtest(regulatory_elements-test test/test_regulatory_elements.test test/src/test_regulatory_elements.cpp)
- target_link_libraries(regulatory_elements-test ${catkin_LIBRARIES} lanelet2_extension_lib)
- add_rostest_gtest(utilities-test test/test_utilities.test test/src/test_utilities.cpp)
- target_link_libraries(utilities-test ${catkin_LIBRARIES} lanelet2_extension_lib)
+ add_rostest_gtest(message_conversion-test
+   test/test_message_conversion.test
+   test/src/test_message_conversion.cpp
+ )
+ target_link_libraries(message_conversion-test
+   ${catkin_LIBRARIES}
+   lanelet2_extension_lib
+ )
+ add_rostest_gtest(projector-test
+   test/test_projector.test
+   test/src/test_projector.cpp
+ )
+ target_link_libraries(projector-test
+   ${catkin_LIBRARIES}
+   lanelet2_extension_lib
+ )
+ add_rostest_gtest(query-test
+   test/test_query.test
+   test/src/test_query.cpp
+ )
+ target_link_libraries(query-test
+   ${catkin_LIBRARIES}
+   lanelet2_extension_lib
+ )
+ add_rostest_gtest(regulatory_elements-test
+   test/test_regulatory_elements.test
+   test/src/test_regulatory_elements.cpp
+ )
+ target_link_libraries(regulatory_elements-test
+   ${catkin_LIBRARIES}
+   lanelet2_extension_lib
+ )
+ add_rostest_gtest(utilities-test
+   test/test_utilities.test
+   test/src/test_utilities.cpp
+ )
+ target_link_libraries(utilities-test
+   ${catkin_LIBRARIES}
+   lanelet2_extension_lib
+ )
 endif()

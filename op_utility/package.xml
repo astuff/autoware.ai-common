@@ -13,4 +13,6 @@
   <depend>tinyxml</depend>
   <depend>vector_map_msgs</depend>
   <depend>vector_map_server</depend>
+
+  <test_depend>rclcpp</test_depend>
 </package>

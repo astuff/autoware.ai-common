@@ -1,6 +1,3 @@
-#ifndef HEALTH_AGGREGATOR_H_INCLUDED
-#define HEALTH_AGGREGATOR_H_INCLUDED
-
 /*
  * Copyright 2019 Autoware Foundation. All rights reserved.
  *
@@ -20,6 +17,8 @@
  * v1.0 Masaya Kataoka
  */
 
+#ifndef AUTOWARE_HEALTH_CHECKER_HEALTH_AGGREGATOR_HEALTH_AGGREGATOR_H
+#define AUTOWARE_HEALTH_CHECKER_HEALTH_AGGREGATOR_HEALTH_AGGREGATOR_H
 // headers in ROS
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <jsk_rviz_plugins/OverlayText.h>
@@ -27,6 +26,8 @@
 
 // headers in Autoware
 #include <autoware_health_checker/constants.h>
+#include <autoware_health_checker/health_checker/param_manager.h>
+#include <autoware_health_checker/health_aggregator/status_monitor.h>
 #include <autoware_system_msgs/NodeStatus.h>
 #include <autoware_system_msgs/SystemStatus.h>
 
@@ -35,42 +36,57 @@
 #include <boost/optional.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/thread.hpp>
 
 // headers in STL
 #include <map>
 #include <mutex>
+#include <string>
+#include <vector>
 
-class HealthAggregator {
+class HealthAggregator
+{
 public:
+  using ErrorLevel = autoware_health_checker::ErrorLevel;
   HealthAggregator(ros::NodeHandle nh, ros::NodeHandle pnh);
-  ~HealthAggregator();
   void run();
 
 private:
+  using AwHwStatus = autoware_system_msgs::HardwareStatus;
+  using AwHwStatusArray = std::vector<AwHwStatus>;
+  using AwNodeStatus = autoware_system_msgs::NodeStatus;
+  using AwDiagStatus = autoware_system_msgs::DiagnosticStatus;
+  using AwDiagStatusArray = autoware_system_msgs::DiagnosticStatusArray;
+  using AwSysStatus = autoware_system_msgs::SystemStatus;
+  using RosDiagStatus = diagnostic_msgs::DiagnosticStatus;
+  using RosDiagArr = diagnostic_msgs::DiagnosticArray;
+  using ErrorKey = autoware_health_checker::ErrorKey;
+  const ErrorLevel convertHardwareLevel(const ErrorLevel& level) const;
+
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
   ros::Publisher system_status_pub_;
-  std::map<uint8_t, ros::Publisher> text_pub_;
+  std::map<ErrorLevel, ros::Publisher> text_pub_;
   ros::Subscriber node_status_sub_;
   ros::Subscriber diagnostic_array_sub_;
-  void publishSystemStatus();
-  void nodeStatusCallback(const autoware_system_msgs::NodeStatus::ConstPtr msg);
-  void
-  diagnosticArrayCallback(const diagnostic_msgs::DiagnosticArray::ConstPtr msg);
-  std::string
-  generateText(std::vector<autoware_system_msgs::DiagnosticStatus> status);
+  ros::Timer system_status_timer_, vital_timer_, ros_observer_timer_;
+  std::vector<std::string> detected_nodes_;
+  StatusMonitor status_monitor_;
+  void updateNodeStatus(const autoware_system_msgs::NodeStatus& node_status);
+  void publishSystemStatus(const ros::TimerEvent& event);
+  void nodeStatusCallback(const AwNodeStatus::ConstPtr& msg);
+  void diagnosticArrayCallback(const RosDiagArr::ConstPtr& msg);
+  std::string generateText(const std::vector<AwDiagStatus>& status);
   jsk_rviz_plugins::OverlayText
-  generateOverlayText(autoware_system_msgs::SystemStatus status, uint8_t level);
-  std::vector<autoware_system_msgs::DiagnosticStatus>
-  filterNodeStatus(autoware_system_msgs::SystemStatus status, uint8_t level);
-  boost::optional<autoware_system_msgs::HardwareStatus>
-  convert(const diagnostic_msgs::DiagnosticArray::ConstPtr msg);
-  autoware_system_msgs::SystemStatus system_status_;
+    generateOverlayText(const AwSysStatus& status, const ErrorLevel level);
+  std::vector<AwDiagStatus>
+    filterNodeStatus(const AwSysStatus& status, const ErrorLevel level);
+  boost::optional<AwHwStatusArray> convert(const RosDiagArr::ConstPtr& msg);
+  AwSysStatus system_status_;
+  autoware_health_checker::ParamManager param_manager_;
   std::mutex mtx_;
-  void updateConnectionStatus();
-  // key topic_name,publisher_node,subscriber_node
-  std::map<std::array<std::string, 3>, rosgraph_msgs::TopicStatistics>
-      topic_status_;
+  void updateConnectionStatus(const ros::TimerEvent& event);
+  void rosObserverVitalCheck(const ros::TimerEvent& event);
+  double hardware_diag_rate_;
+  std::string hardware_diag_node_;
 };
-#endif // HEALTH_AGGREGATOR_H_INCLUDED
+#endif  // AUTOWARE_HEALTH_CHECKER_HEALTH_AGGREGATOR_HEALTH_AGGREGATOR_H

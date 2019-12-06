@@ -17,98 +17,174 @@
  * v1.0 Masaya Kataoka
  */
 
+#include <string>
+#include <vector>
+#include <regex>
 #include <autoware_health_checker/health_aggregator/health_aggregator.h>
+#include <ros_observer/lib_ros_observer.h>
 
-HealthAggregator::HealthAggregator(ros::NodeHandle nh, ros::NodeHandle pnh) {
-  nh_ = nh;
-  pnh_ = pnh;
-}
-
-HealthAggregator::~HealthAggregator() {}
-
-void HealthAggregator::run() {
-  system_status_pub_ =
-      nh_.advertise<autoware_system_msgs::SystemStatus>("/system_status", 10);
-  text_pub_[autoware_health_checker::LEVEL_OK] =
-      pnh_.advertise<jsk_rviz_plugins::OverlayText>("ok_text", 1);
-  text_pub_[autoware_health_checker::LEVEL_WARN] =
-      pnh_.advertise<jsk_rviz_plugins::OverlayText>("warn_text", 1);
-  text_pub_[autoware_health_checker::LEVEL_ERROR] =
-      pnh_.advertise<jsk_rviz_plugins::OverlayText>("error_text", 1);
-  text_pub_[autoware_health_checker::LEVEL_FATAL] =
-      pnh_.advertise<jsk_rviz_plugins::OverlayText>("fatal_text", 1);
-  node_status_sub_ = nh_.subscribe("/node_status", 10,
-                                   &HealthAggregator::nodeStatusCallback, this);
-  diagnostic_array_sub_ = nh_.subscribe(
-      "/diagnostic_agg", 10, &HealthAggregator::diagnosticArrayCallback, this);
-  boost::thread publish_thread(
-      boost::bind(&HealthAggregator::publishSystemStatus, this));
-  return;
-}
-
-void HealthAggregator::publishSystemStatus() {
-  ros::Rate rate = ros::Rate(autoware_health_checker::UPDATE_RATE);
-  while (ros::ok()) {
-    mtx_.lock();
-    system_status_.header.stamp = ros::Time::now();
-    updateConnectionStatus();
-    system_status_pub_.publish(system_status_);
-    text_pub_[autoware_health_checker::LEVEL_OK].publish(
-        generateOverlayText(system_status_, autoware_health_checker::LEVEL_OK));
-    text_pub_[autoware_health_checker::LEVEL_WARN].publish(generateOverlayText(
-        system_status_, autoware_health_checker::LEVEL_WARN));
-    text_pub_[autoware_health_checker::LEVEL_ERROR].publish(generateOverlayText(
-        system_status_, autoware_health_checker::LEVEL_ERROR));
-    text_pub_[autoware_health_checker::LEVEL_FATAL].publish(generateOverlayText(
-        system_status_, autoware_health_checker::LEVEL_FATAL));
-    system_status_.topic_statistics.clear();
-    system_status_.node_status.clear();
-    system_status_.hardware_status.clear();
-    mtx_.unlock();
-    rate.sleep();
+namespace
+{
+std::string changeToKeyFormat(const std::string& node_name)
+{
+  std::string changed_name(node_name);
+  if (changed_name.at(0) == '/')
+  {
+    changed_name.erase(changed_name.begin());
   }
-  return;
+  changed_name = std::regex_replace(changed_name, std::regex("/"), "_");
+  return changed_name;
 }
 
-void HealthAggregator::updateConnectionStatus() {
+
+boost::optional <std::string> getValidName(const std::string& orig)
+{
+  std::string changed(orig);
+  static const std::vector<std::string> delete_strings =
+  {
+    ".*:", ".*/", R"(\(.*\))",
+    R"([\[\]"\\(){}?.*+^$|!#%&'-=~`@;:,<> ])"
+  };
+  for (const auto& str : delete_strings)
+  {
+    changed = std::regex_replace(changed, std::regex(str), "");
+  }
+  std::string error;
+  return ros::names::validate(changed, error) ?
+    boost::optional<std::string>(changed) : boost::none;
+}
+}  // namespace
+
+HealthAggregator::HealthAggregator(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : nh_(nh), pnh_(pnh), param_manager_(nh_, pnh)
+{
+  nh_.param("hardware_diag_node",
+    hardware_diag_node_, std::string("diagnostic_aggregator"));
+  nh_.param(hardware_diag_node_ + "/pub_rate", hardware_diag_rate_, 1.0);
+}
+
+void HealthAggregator::run()
+{
+  system_status_pub_ = nh_.advertise<AwSysStatus>("system_status", 10);
+  auto registerTextPublisher = [this](ErrorLevel level, std::string topic)
+  {
+    text_pub_[level] = pnh_.advertise<jsk_rviz_plugins::OverlayText>(topic, 1);
+    return;
+  };
+  registerTextPublisher(AwDiagStatus::OK, "ok_text");
+  registerTextPublisher(AwDiagStatus::WARN, "warn_text");
+  registerTextPublisher(AwDiagStatus::ERROR, "error_text");
+  registerTextPublisher(AwDiagStatus::FATAL, "fatal_text");
+  node_status_sub_ = nh_.subscribe("node_status", 10,
+    &HealthAggregator::nodeStatusCallback, this);
+  // ros::master::getNodes will continue to wait for a response from the master
+  // if the master goes down unless a timeout is specified.
+  // To avoid this, it is necessary to set a timeout.
+  ros::master::setRetryTimeout(ros::WallDuration(0.01));
+  diagnostic_array_sub_ = nh_.subscribe(
+    "diagnostics_agg", 10, &HealthAggregator::diagnosticArrayCallback, this);
+
+  ros::Duration duration(1.0 / autoware_health_checker::SYSTEM_UPDATE_RATE);
+  system_status_timer_ =
+    nh_.createTimer(duration, &HealthAggregator::publishSystemStatus, this);
+  vital_timer_ =
+    nh_.createTimer(duration, &HealthAggregator::updateConnectionStatus, this);
+  ros_observer_timer_ =
+    nh_.createTimer(duration, &HealthAggregator::rosObserverVitalCheck, this);
+}
+
+void HealthAggregator::updateNodeStatus(
+  const autoware_system_msgs::NodeStatus& node_status)
+{
+  auto& node_status_array = system_status_.node_status;
+  auto identify = [&node_status](const autoware_system_msgs::NodeStatus& status)
+  {
+    return status.node_name == node_status.node_name;
+  };
+  auto result =
+    std::find_if(node_status_array.begin(), node_status_array.end(), identify);
+  if (result != node_status_array.end())
+  {
+    *result = node_status;
+  }
+  else
+  {
+    node_status_array.emplace_back(node_status);
+  }
+}
+void HealthAggregator::publishSystemStatus(const ros::TimerEvent& event)
+{
+  std::lock_guard<std::mutex> lock(mtx_);
+  system_status_.header.stamp = ros::Time::now();
+  updateNodeStatus(status_monitor_.getMonitorStatus());
+  system_status_.available_nodes = detected_nodes_;
+  system_status_pub_.publish(system_status_);
+  static const std::array<ErrorLevel, 4> level_array =
+  {
+    AwDiagStatus::OK,
+    AwDiagStatus::WARN,
+    AwDiagStatus::ERROR,
+    AwDiagStatus::FATAL
+  };
+  for (const auto& level : level_array)
+  {
+    text_pub_[level].publish(generateOverlayText(system_status_, level));
+  }
+}
+
+void HealthAggregator::rosObserverVitalCheck(const ros::TimerEvent& event)
+{
+  static constexpr double loop_rate = autoware_health_checker::SYSTEM_UPDATE_RATE;
+  static ShmVitalMonitor shm_ROvmon("RosObserver", loop_rate, VitalMonitorMode::CNT_MON);
+  static ShmVitalMonitor shm_HAvmon("HealthAggregator", loop_rate);
+
+  shm_ROvmon.run();
+  shm_HAvmon.run();
+}
+
+void HealthAggregator::updateConnectionStatus(const ros::TimerEvent& event)
+{
   std::vector<std::string> detected_nodes;
   ros::master::getNodes(detected_nodes);
-  system_status_.available_nodes = detected_nodes;
-  return;
+  detected_nodes_ = detected_nodes;
 }
 
-void HealthAggregator::nodeStatusCallback(
-    const autoware_system_msgs::NodeStatus::ConstPtr msg) {
-  mtx_.lock();
-  system_status_.node_status.push_back(*msg);
-  mtx_.unlock();
-  return;
+void HealthAggregator::nodeStatusCallback(const AwNodeStatus::ConstPtr& msg)
+{
+  std::lock_guard<std::mutex> lock(mtx_);
+  updateNodeStatus(*msg);
+  static const double timeout =
+    1.0 / autoware_health_checker::NODE_STATUS_UPDATE_RATE * 2.0;
+  status_monitor_.updateStamp(changeToKeyFormat(msg->node_name), timeout);
 }
 
-void HealthAggregator::diagnosticArrayCallback(
-    const diagnostic_msgs::DiagnosticArray::ConstPtr msg) {
-  mtx_.lock();
-  boost::optional<autoware_system_msgs::HardwareStatus> status = convert(msg);
-  if (status) {
-    system_status_.hardware_status.push_back(*status);
+void HealthAggregator::diagnosticArrayCallback(const RosDiagArr::ConstPtr& msg)
+{
+  std::lock_guard<std::mutex> lock(mtx_);
+  auto status = convert(msg);
+  if (status)
+  {
+    system_status_.hardware_status = status.get();
   }
-  mtx_.unlock();
-  return;
+  static const double timeout = 1.0 / hardware_diag_rate_ * 2.0;
+  status_monitor_.updateStamp(changeToKeyFormat(hardware_diag_node_), timeout);
 }
 
 std::string HealthAggregator::generateText(
-    std::vector<autoware_system_msgs::DiagnosticStatus> status) {
+  const std::vector<AwDiagStatus>& status)
+{
   std::string text;
-  for (auto itr = status.begin(); itr != status.end(); itr++) {
-    text = text + itr->description + "\n";
-    // text = itr->key + " : " + itr->description + "\n";
+  for (const auto& s : status)
+  {
+    text = text + s.description + "\n";
   }
   return text;
 }
 
 jsk_rviz_plugins::OverlayText
-HealthAggregator::generateOverlayText(autoware_system_msgs::SystemStatus status,
-                                      uint8_t level) {
+HealthAggregator::generateOverlayText(const AwSysStatus& status,
+  const HealthAggregator::ErrorLevel level)
+{
   jsk_rviz_plugins::OverlayText text;
   text.action = text.ADD;
   text.width = 640;
@@ -119,28 +195,35 @@ HealthAggregator::generateOverlayText(autoware_system_msgs::SystemStatus status,
   text.bg_color.b = 0;
   text.bg_color.a = 0.7;
   text.text_size = 20.0;
-  if (level == autoware_health_checker::LEVEL_OK) {
+  if (level == AwDiagStatus::OK)
+  {
     text.left = 0;
     text.fg_color.r = 0.0;
     text.fg_color.g = 0.0;
     text.fg_color.b = 1.0;
     text.fg_color.a = 1.0;
     text.text = generateText(filterNodeStatus(status, level));
-  } else if (level == autoware_health_checker::LEVEL_WARN) {
+  }
+  else if (level == AwDiagStatus::WARN)
+  {
     text.left = 640 * 1;
     text.fg_color.r = 1.0;
     text.fg_color.g = 1.0;
     text.fg_color.b = 0.0;
     text.fg_color.a = 1.0;
     text.text = generateText(filterNodeStatus(status, level));
-  } else if (level == autoware_health_checker::LEVEL_ERROR) {
+  }
+  else if (level == AwDiagStatus::ERROR)
+  {
     text.left = 640 * 2;
     text.fg_color.r = 1.0;
     text.fg_color.g = 0.0;
     text.fg_color.b = 0.0;
     text.fg_color.a = 1.0;
     text.text = generateText(filterNodeStatus(status, level));
-  } else if (level == autoware_health_checker::LEVEL_FATAL) {
+  }
+  else if (level == AwDiagStatus::FATAL)
+  {
     text.left = 640 * 3;
     text.fg_color.r = 1.0;
     text.fg_color.g = 1.0;
@@ -151,20 +234,24 @@ HealthAggregator::generateOverlayText(autoware_system_msgs::SystemStatus status,
   return text;
 }
 
-std::vector<autoware_system_msgs::DiagnosticStatus>
-HealthAggregator::filterNodeStatus(autoware_system_msgs::SystemStatus status,
-                                   uint8_t level) {
-  std::vector<autoware_system_msgs::DiagnosticStatus> ret;
-  for (auto node_status_itr = status.node_status.begin();
-       node_status_itr != status.node_status.end(); node_status_itr++) {
-    if (node_status_itr->node_activated) {
-      for (auto array_itr = node_status_itr->status.begin();
-           array_itr != node_status_itr->status.end(); array_itr++) {
-        for (auto itr = array_itr->status.begin();
-             itr != array_itr->status.end(); itr++) {
-          if (itr->level == level) {
-            ret.push_back(*itr);
-          }
+std::vector<HealthAggregator::AwDiagStatus>
+HealthAggregator::filterNodeStatus(const AwSysStatus& status,
+  const HealthAggregator::ErrorLevel level)
+{
+  std::vector<AwDiagStatus> ret;
+  for (const auto& node_status : status.node_status)
+  {
+    if (!node_status.node_activated)
+    {
+      continue;
+    }
+    for (const auto& node_status_array : node_status.status)
+    {
+      for (const auto& diag_status : node_status_array.status)
+      {
+        if (diag_status.level == level)
+        {
+          ret.emplace_back(diag_status);
         }
       }
     }
@@ -172,42 +259,69 @@ HealthAggregator::filterNodeStatus(autoware_system_msgs::SystemStatus status,
   return ret;
 }
 
-boost::optional<autoware_system_msgs::HardwareStatus> HealthAggregator::convert(
-    const diagnostic_msgs::DiagnosticArray::ConstPtr msg) {
-  autoware_system_msgs::HardwareStatus status;
-  if (msg->status.size() == 0) {
+const HealthAggregator::ErrorLevel
+  HealthAggregator::convertHardwareLevel(const ErrorLevel& level) const
+{
+  return
+    (level == RosDiagStatus::OK) ? AwDiagStatus::OK :
+    (level == RosDiagStatus::WARN) ? AwDiagStatus::WARN :
+    (level == RosDiagStatus::ERROR) ? AwDiagStatus::ERROR :
+    (level == RosDiagStatus::STALE) ? AwDiagStatus::FATAL :
+    AwDiagStatus::UNDEFINED;
+}
+
+boost::optional<HealthAggregator::AwHwStatusArray>
+  HealthAggregator::convert(const RosDiagArr::ConstPtr& msg)
+{
+  AwHwStatusArray status_array;
+  if (msg->status.empty())
+  {
     return boost::none;
   }
-  status.header = msg->header;
-  for (auto diag_itr = msg->status.begin(); diag_itr != msg->status.end();
-       diag_itr++) {
-    status.hardware_name = diag_itr->hardware_id;
-    autoware_system_msgs::DiagnosticStatus diag;
-    autoware_system_msgs::DiagnosticStatusArray diag_array;
-    diag.header = msg->header;
-    diag.key = diag_itr->hardware_id;
-    diag.description = diag_itr->message;
-    diag.type = autoware_system_msgs::DiagnosticStatus::HARDWARE;
-    if (diag_itr->level == diagnostic_msgs::DiagnosticStatus::OK) {
-      diag.level = autoware_health_checker::LEVEL_OK;
-    } else if (diag_itr->level == diagnostic_msgs::DiagnosticStatus::WARN) {
-      diag.level = autoware_health_checker::LEVEL_WARN;
-    } else if (diag_itr->level == diagnostic_msgs::DiagnosticStatus::ERROR) {
-      diag.level = autoware_health_checker::LEVEL_ERROR;
-    } else if (diag_itr->level == diagnostic_msgs::DiagnosticStatus::STALE) {
-      diag.level = autoware_health_checker::LEVEL_FATAL;
+
+  for (const auto& hw_status : msg->status)
+  {
+    const auto ns = getValidName(hw_status.name);
+    if (!ns)
+    {
+      continue;
     }
-    using namespace boost::property_tree;
-    std::stringstream ss;
-    ptree pt;
-    for (auto value_itr = diag_itr->values.begin();
-         value_itr != diag_itr->values.end(); value_itr++) {
-      pt.put(value_itr->key + ".string", value_itr->value);
+    AwHwStatus status;
+    status.header = msg->header;
+    status.hardware_name = ns.get();
+    const ErrorLevel level = convertHardwareLevel(hw_status.level);
+    AwDiagStatusArray diag_array;
+    for (const auto& diag_status : hw_status.values)
+    {
+      const auto local_key = getValidName(diag_status.key);
+      if (!local_key)
+      {
+        continue;
+      }
+      const ErrorKey global_key = ns.get() + "/" + local_key.get();
+      param_manager_.addCandidate(global_key);
+      if (param_manager_.isNotFound(ns.get(), local_key.get()))
+      {
+        continue;
+      }
+      AwDiagStatus diag;
+      diag.header = msg->header;
+      diag.key = global_key;
+      diag.description = global_key;
+      diag.type = AwDiagStatus::HARDWARE;
+      diag.level = level;
+      std::stringstream ss;
+      boost::property_tree::ptree pt;
+      pt.put("value", diag_status.value);
+      write_json(ss, pt);
+      diag.value = ss.str();
+      diag_array.status.emplace_back(diag);
     }
-    write_json(ss, pt);
-    diag.value = ss.str();
-    diag_array.status.push_back(diag);
-    status.status.push_back(diag_array);
+    if (!diag_array.status.empty())
+    {
+      status.status.emplace_back(diag_array);
+      status_array.emplace_back(status);
+    }
   }
-  return status;
+  return status_array;
 }

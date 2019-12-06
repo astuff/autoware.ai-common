@@ -1,6 +1,3 @@
-#ifndef RATE_CHECKER_H_INCLUDED
-#define RATE_CHECKER_H_INCLUDED
-
 /*
  * Copyright 2019 Autoware Foundation. All rights reserved.
  *
@@ -20,12 +17,16 @@
  * v1.0 Masaya Kataoka
  */
 
+#ifndef AUTOWARE_HEALTH_CHECKER_HEALTH_CHECKER_RATE_CHECKER_H
+#define AUTOWARE_HEALTH_CHECKER_HEALTH_CHECKER_RATE_CHECKER_H
 // headers in ROS
 #include <ros/ros.h>
 
 // headers in STL
 #include <mutex>
 #include <vector>
+#include <string>
+#include <utility>
 
 // headers in Boost
 #include <boost/optional.hpp>
@@ -33,27 +34,32 @@
 // headers in Autoware
 #include <autoware_health_checker/constants.h>
 
-namespace autoware_health_checker {
-class RateChecker {
+namespace autoware_health_checker
+{
+using LevelRatePair = std::pair<ErrorLevel, double>;
+
+class RateChecker
+{
 public:
-  RateChecker(double buffer_length, double warn_rate, double error_rate,
+  RateChecker(double buffer_duration, double warn_rate, double error_rate,
               double fatal_rate, std::string description);
-  ~RateChecker();
   void check();
-  std::pair<uint8_t, double> getErrorLevelAndRate();
-  uint8_t getErrorLevel();
+  boost::optional<LevelRatePair> getErrorLevelAndRate();
+  boost::optional<ErrorLevel> getErrorLevel();
   boost::optional<double> getRate();
+  void setRate(double warn_rate, double error_rate, double fatal_rate);
   const std::string description;
 
 private:
+  using AwDiagStatus = autoware_system_msgs::DiagnosticStatus;
   ros::Time start_time_;
   void update();
   std::vector<ros::Time> data_;
-  const double buffer_length_;
-  const double warn_rate_;
-  const double error_rate_;
-  const double fatal_rate_;
+  double buffer_duration_;
+  double warn_rate_;
+  double error_rate_;
+  double fatal_rate_;
   std::mutex mtx_;
 };
-}
-#endif // RATE_CHECKER_H_INCLUDED
+}  // namespace autoware_health_checker
+#endif  // AUTOWARE_HEALTH_CHECKER_HEALTH_CHECKER_RATE_CHECKER_H

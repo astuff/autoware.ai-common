@@ -376,327 +376,296 @@ void updateRailCrossing(std::map<Key<RailCrossing>, RailCrossing>& map, const Ra
 
 bool VectorMap::hasSubscribed(category_t category) const
 {
-  if (category & POINT)
+  if ((category & POINT) > 0 && point_.empty())
   {
-    if (point_.empty())
-      return false;
+    return false;
   }
-  if (category & VECTOR)
+  else if ((category & VECTOR) > 0 && vector_.empty())
   {
-    if (vector_.empty())
-      return false;
+    return false;
   }
-  if (category & LINE)
+  else if ((category & LINE) > 0 && line_.empty())
   {
-    if (line_.empty())
-      return false;
+    return false;
   }
-  if (category & AREA)
+  else if ((category & AREA) > 0 && area_.empty())
   {
-    if (area_.empty())
-      return false;
+    return false;
   }
-  if (category & POLE)
+  else if ((category & POLE) > 0 && pole_.empty())
   {
-    if (pole_.empty())
-      return false;
+    return false;
   }
-  if (category & BOX)
+  else if ((category & BOX) > 0 && box_.empty())
   {
-    if (box_.empty())
-      return false;
+    return false;
   }
-  if (category & DTLANE)
+  else if ((category & DTLANE) > 0 && dtlane_.empty())
   {
-    if (dtlane_.empty())
-      return false;
+    return false;
   }
-  if (category & NODE)
+  else if ((category & NODE) > 0 && node_.empty())
   {
-    if (node_.empty())
-      return false;
+    return false;
   }
-  if (category & LANE)
+  else if ((category & LANE) > 0 && lane_.empty())
   {
-    if (lane_.empty())
-      return false;
+    return false;
   }
-  if (category & WAY_AREA)
+  else if ((category & WAY_AREA) > 0 && way_area_.empty())
   {
-    if (way_area_.empty())
-      return false;
+    return false;
   }
-  if (category & ROAD_EDGE)
+  else if ((category & ROAD_EDGE) > 0 && road_edge_.empty())
   {
-    if (road_edge_.empty())
-      return false;
+    return false;
   }
-  if (category & GUTTER)
+  else if ((category & GUTTER) > 0 && gutter_.empty())
   {
-    if (gutter_.empty())
-      return false;
+    return false;
   }
-  if (category & CURB)
+  else if ((category & CURB) > 0 && curb_.empty())
   {
-    if (curb_.empty())
-      return false;
+    return false;
   }
-  if (category & WHITE_LINE)
+  else if ((category & WHITE_LINE) > 0 && white_line_.empty())
   {
-    if (white_line_.empty())
-      return false;
+    return false;
   }
-  if (category & STOP_LINE)
+  else if ((category & STOP_LINE) > 0 && stop_line_.empty())
   {
-    if (stop_line_.empty())
-      return false;
+    return false;
   }
-  if (category & ZEBRA_ZONE)
+  else if ((category & ZEBRA_ZONE) > 0 && zebra_zone_.empty())
   {
-    if (zebra_zone_.empty())
-      return false;
+    return false;
   }
-  if (category & CROSS_WALK)
+  else if ((category & CROSS_WALK) > 0 && cross_walk_.empty())
   {
-    if (cross_walk_.empty())
-      return false;
+    return false;
   }
-  if (category & ROAD_MARK)
+  else if ((category & ROAD_MARK) > 0 && road_mark_.empty())
   {
-    if (road_mark_.empty())
-      return false;
+    return false;
   }
-  if (category & ROAD_POLE)
+  else if ((category & ROAD_POLE) > 0 && road_pole_.empty())
   {
-    if (road_pole_.empty())
-      return false;
+    return false;
   }
-  if (category & ROAD_SIGN)
+  else if ((category & ROAD_SIGN) > 0 && road_sign_.empty())
   {
-    if (road_sign_.empty())
-      return false;
+    return false;
   }
-  if (category & SIGNAL)
+  else if ((category & SIGNAL) > 0 && signal_.empty())
   {
-    if (signal_.empty())
-      return false;
+    return false;
   }
-  if (category & STREET_LIGHT)
+  else if ((category & STREET_LIGHT) > 0 && street_light_.empty())
   {
-    if (street_light_.empty())
-      return false;
+    return false;
   }
-  if (category & UTILITY_POLE)
+  else if ((category & UTILITY_POLE) > 0 && utility_pole_.empty())
   {
-    if (utility_pole_.empty())
-      return false;
+    return false;
   }
-  if (category & GUARD_RAIL)
+  else if ((category & GUARD_RAIL) > 0 && guard_rail_.empty())
   {
-    if (guard_rail_.empty())
-      return false;
+    return false;
   }
-  if (category & SIDE_WALK)
+  else if ((category & SIDE_WALK) > 0 && side_walk_.empty())
   {
-    if (side_walk_.empty())
-      return false;
+    return false;
   }
-  if (category & DRIVE_ON_PORTION)
+  else if ((category & DRIVE_ON_PORTION) > 0 && drive_on_portion_.empty())
   {
-    if (drive_on_portion_.empty())
-      return false;
+    return false;
   }
-  if (category & CROSS_ROAD)
+  else if ((category & CROSS_ROAD) > 0 && cross_road_.empty())
   {
-    if (cross_road_.empty())
-      return false;
+    return false;
   }
-  if (category & SIDE_STRIP)
+  else if ((category & SIDE_STRIP) > 0 && side_strip_.empty())
   {
-    if (side_strip_.empty())
-      return false;
+    return false;
   }
-  if (category & CURVE_MIRROR)
+  else if ((category & CURVE_MIRROR) > 0 && curve_mirror_.empty())
   {
-    if (curve_mirror_.empty())
-      return false;
+    return false;
   }
-  if (category & WALL)
+  else if ((category & WALL) > 0 && wall_.empty())
   {
-    if (wall_.empty())
-      return false;
+    return false;
   }
-  if (category & FENCE)
+  else if ((category & FENCE) > 0 && fence_.empty())
   {
-    if (fence_.empty())
-      return false;
+    return false;
   }
-  if (category & RAIL_CROSSING)
+  else if ((category & RAIL_CROSSING) > 0 && rail_crossing_.empty())
   {
-    if (rail_crossing_.empty())
-      return false;
+    return false;
   }
+
   return true;
 }
 
 void VectorMap::registerSubscriber(ros::NodeHandle& nh, category_t category)
 {
-  if (category & POINT)
+  if ((category & POINT) > 0)
   {
     point_.registerSubscriber(nh, "/vector_map_info/point");
     point_.registerUpdater(updatePoint);
   }
-  if (category & VECTOR)
+  else if ((category & VECTOR) > 0)
   {
     vector_.registerSubscriber(nh, "/vector_map_info/vector");
     vector_.registerUpdater(updateVector);
   }
-  if (category & LINE)
+  else if ((category & LINE) > 0)
   {
     line_.registerSubscriber(nh, "/vector_map_info/line");
     line_.registerUpdater(updateLine);
   }
-  if (category & AREA)
+  else if ((category & AREA) > 0)
   {
     area_.registerSubscriber(nh, "/vector_map_info/area");
     area_.registerUpdater(updateArea);
   }
-  if (category & POLE)
+  else if ((category & POLE) > 0)
   {
     pole_.registerSubscriber(nh, "/vector_map_info/pole");
     pole_.registerUpdater(updatePole);
   }
-  if (category & BOX)
+  else if ((category & BOX) > 0)
   {
     box_.registerSubscriber(nh, "/vector_map_info/box");
     box_.registerUpdater(updateBox);
   }
-  if (category & DTLANE)
+  else if ((category & DTLANE) > 0)
   {
     dtlane_.registerSubscriber(nh, "/vector_map_info/dtlane");
     dtlane_.registerUpdater(updateDTLane);
   }
-  if (category & NODE)
+  else if ((category & NODE) > 0)
   {
     node_.registerSubscriber(nh, "/vector_map_info/node");
     node_.registerUpdater(updateNode);
   }
-  if (category & LANE)
+  else if ((category & LANE) > 0)
   {
     lane_.registerSubscriber(nh, "/vector_map_info/lane");
     lane_.registerUpdater(updateLane);
   }
-  if (category & WAY_AREA)
+  else if ((category & WAY_AREA) > 0)
   {
     way_area_.registerSubscriber(nh, "/vector_map_info/way_area");
     way_area_.registerUpdater(updateWayArea);
   }
-  if (category & ROAD_EDGE)
+  else if ((category & ROAD_EDGE) > 0)
   {
     road_edge_.registerSubscriber(nh, "/vector_map_info/road_edge");
     road_edge_.registerUpdater(updateRoadEdge);
   }
-  if (category & GUTTER)
+  else if ((category & GUTTER) > 0)
   {
     gutter_.registerSubscriber(nh, "/vector_map_info/gutter");
     gutter_.registerUpdater(updateGutter);
   }
-  if (category & CURB)
+  else if ((category & CURB) > 0)
   {
     curb_.registerSubscriber(nh, "/vector_map_info/curb");
     curb_.registerUpdater(updateCurb);
   }
-  if (category & WHITE_LINE)
+  else if ((category & WHITE_LINE) > 0)
   {
     white_line_.registerSubscriber(nh, "/vector_map_info/white_line");
     white_line_.registerUpdater(updateWhiteLine);
   }
-  if (category & STOP_LINE)
+  else if ((category & STOP_LINE) > 0)
   {
     stop_line_.registerSubscriber(nh, "/vector_map_info/stop_line");
     stop_line_.registerUpdater(updateStopLine);
   }
-  if (category & ZEBRA_ZONE)
+  else if ((category & ZEBRA_ZONE) > 0)
   {
     zebra_zone_.registerSubscriber(nh, "/vector_map_info/zebra_zone");
     zebra_zone_.registerUpdater(updateZebraZone);
   }
-  if (category & CROSS_WALK)
+  else if ((category & CROSS_WALK) > 0)
   {
     cross_walk_.registerSubscriber(nh, "/vector_map_info/cross_walk");
     cross_walk_.registerUpdater(updateCrossWalk);
   }
-  if (category & ROAD_MARK)
+  else if ((category & ROAD_MARK) > 0)
   {
     road_mark_.registerSubscriber(nh, "/vector_map_info/road_mark");
     road_mark_.registerUpdater(updateRoadMark);
   }
-  if (category & ROAD_POLE)
+  else if ((category & ROAD_POLE) > 0)
   {
     road_pole_.registerSubscriber(nh, "/vector_map_info/road_pole");
     road_pole_.registerUpdater(updateRoadPole);
   }
-  if (category & ROAD_SIGN)
+  else if ((category & ROAD_SIGN) > 0)
   {
     road_sign_.registerSubscriber(nh, "/vector_map_info/road_sign");
     road_sign_.registerUpdater(updateRoadSign);
   }
-  if (category & SIGNAL)
+  else if ((category & SIGNAL) > 0)
   {
     signal_.registerSubscriber(nh, "/vector_map_info/signal");
     signal_.registerUpdater(updateSignal);
   }
-  if (category & STREET_LIGHT)
+  else if ((category & STREET_LIGHT) > 0)
   {
     street_light_.registerSubscriber(nh, "/vector_map_info/street_light");
     street_light_.registerUpdater(updateStreetLight);
   }
-  if (category & UTILITY_POLE)
+  else if ((category & UTILITY_POLE) > 0)
   {
     utility_pole_.registerSubscriber(nh, "/vector_map_info/utility_pole");
     utility_pole_.registerUpdater(updateUtilityPole);
   }
-  if (category & GUARD_RAIL)
+  else if ((category & GUARD_RAIL) > 0)
   {
     guard_rail_.registerSubscriber(nh, "/vector_map_info/guard_rail");
     guard_rail_.registerUpdater(updateGuardRail);
   }
-  if (category & SIDE_WALK)
+  else if ((category & SIDE_WALK) > 0)
   {
     side_walk_.registerSubscriber(nh, "/vector_map_info/side_walk");
     side_walk_.registerUpdater(updateSideWalk);
   }
-  if (category & DRIVE_ON_PORTION)
+  else if ((category & DRIVE_ON_PORTION) > 0)
   {
     drive_on_portion_.registerSubscriber(nh, "/vector_map_info/drive_on_portion");
     drive_on_portion_.registerUpdater(updateDriveOnPortion);
   }
-  if (category & CROSS_ROAD)
+  else if ((category & CROSS_ROAD) > 0)
   {
     cross_road_.registerSubscriber(nh, "/vector_map_info/cross_road");
     cross_road_.registerUpdater(updateCrossRoad);
   }
-  if (category & SIDE_STRIP)
+  else if ((category & SIDE_STRIP) > 0)
   {
     side_strip_.registerSubscriber(nh, "/vector_map_info/side_strip");
     side_strip_.registerUpdater(updateSideStrip);
   }
-  if (category & CURVE_MIRROR)
+  else if ((category & CURVE_MIRROR) > 0)
   {
     curve_mirror_.registerSubscriber(nh, "/vector_map_info/curve_mirror");
     curve_mirror_.registerUpdater(updateCurveMirror);
   }
-  if (category & WALL)
+  else if ((category & WALL) > 0)
   {
     wall_.registerSubscriber(nh, "/vector_map_info/wall");
     wall_.registerUpdater(updateWall);
   }
-  if (category & FENCE)
+  else if ((category & FENCE) > 0)
   {
     fence_.registerSubscriber(nh, "/vector_map_info/fence");
     fence_.registerUpdater(updateFence);
   }
-  if (category & RAIL_CROSSING)
+  else if ((category & RAIL_CROSSING) > 0)
   {
     rail_crossing_.registerSubscriber(nh, "/vector_map_info/rail_crossing");
     rail_crossing_.registerUpdater(updateRailCrossing);

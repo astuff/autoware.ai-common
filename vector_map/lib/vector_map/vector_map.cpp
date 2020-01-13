@@ -703,10 +703,6 @@ void VectorMap::registerSubscriber(ros::NodeHandle& nh, category_t category)
   }
 }
 
-VectorMap::VectorMap()
-{
-}
-
 void VectorMap::subscribe(ros::NodeHandle& nh, category_t category)
 {
   registerSubscriber(nh, category);

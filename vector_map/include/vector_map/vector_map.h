@@ -18,6 +18,9 @@
 #define VECTOR_MAP_VECTOR_MAP_H
 
 #include <fstream>
+#include <map>
+#include <string>
+#include <vector>
 
 #include <ros/ros.h>
 #include <geometry_msgs/Point.h>
@@ -124,7 +127,7 @@ using vector_map_msgs::WhiteLineArray;
 using vector_map_msgs::ZebraZone;
 using vector_map_msgs::ZebraZoneArray;
 
-using category_t = unsigned long long;
+using category_t = uint64_t;
 
 enum Category : category_t
 {
@@ -295,7 +298,7 @@ std::vector<T> parse(const std::string& csv_file)
 {
   std::ifstream ifs(csv_file.c_str());
   std::string line;
-  std::getline(ifs, line); // remove first line
+  std::getline(ifs, line);  // remove first line
   std::vector<T> objs;
   while (std::getline(ifs, line))
   {

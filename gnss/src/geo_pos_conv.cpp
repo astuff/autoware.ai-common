@@ -204,9 +204,9 @@ void geo_pos_conv::set_llh_nmea_degrees(double latd, double lond, double h)
   double lat, lad, lod, lon;
   // 1234.56 -> 12'34.56 -> 12+ 34.56/60
 
-  lad = floor(latd / 100.);
+  lad = (latd > 0) ? floor(latd / 100.) : ceil(latd / 100.);
   lat = latd - lad * 100.;
-  lod = floor(lond / 100.);
+  lod = (lond > 0) ? floor(lond / 100.) : ceil(lond / 100.);
   lon = lond - lod * 100.;
 
   // Changing Longitude and Latitude to Radians

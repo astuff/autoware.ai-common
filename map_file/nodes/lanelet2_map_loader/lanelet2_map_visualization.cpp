@@ -53,7 +53,7 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
   lanelet::LaneletMapPtr viz_lanelet_map(new lanelet::LaneletMap);
 
   lanelet::utils::conversion::fromBinMsg(msg, viz_lanelet_map);
-  ROS_INFO("Map is loaded\n");
+  ROS_INFO("Map loaded");
 
   // get lanelets etc to visualize
   lanelet::ConstLanelets all_lanelets = lanelet::utils::query::laneletLayer(viz_lanelet_map);
@@ -84,6 +84,9 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
                                                                                               cl_stoplines, 0.5));
   insertMarkerArray(&map_marker_array, lanelet::visualization::autowareTrafficLightsAsMarkerArray(
                                            aw_tl_reg_elems, cl_trafficlights));
+
+  ROS_INFO("Visualizing lanelet2 map with %lu lanelets, %lu stop lines, and %lu traffic lights",
+    all_lanelets.size(), stop_lines.size(), aw_tl_reg_elems.size());
 
   g_map_pub.publish(map_marker_array);
 }

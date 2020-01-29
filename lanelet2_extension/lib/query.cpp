@@ -170,14 +170,13 @@ std::vector<lanelet::ConstLineString3d> query::getTrafficLightStopLines(const la
   std::vector<std::shared_ptr<const lanelet::TrafficLight> > traffic_light_reg_elems =
       ll.regulatoryElementsAs<const lanelet::TrafficLight>();
 
-  if (traffic_light_reg_elems.size() > 0)
+  // lanelet has a traffic light elem element
+  for (const auto reg_elem : traffic_light_reg_elems)
   {
-    // lanelet has a traffic light elem element
-    for (auto j = traffic_light_reg_elems.begin(); j < traffic_light_reg_elems.end(); j++)
+    lanelet::Optional<lanelet::ConstLineString3d> traffic_light_stopline_opt = reg_elem->stopLine();
+    if (!!traffic_light_stopline_opt)
     {
-      lanelet::Optional<lanelet::ConstLineString3d> traffic_light_stopline_opt = (*j)->stopLine();
-      if (!!traffic_light_stopline_opt)
-        stoplines.push_back(traffic_light_stopline_opt.get());
+      stoplines.push_back(traffic_light_stopline_opt.get());
     }
   }
 
@@ -185,15 +184,12 @@ std::vector<lanelet::ConstLineString3d> query::getTrafficLightStopLines(const la
   std::vector<std::shared_ptr<const lanelet::TrafficSign> > traffic_sign_reg_elems =
       ll.regulatoryElementsAs<const lanelet::TrafficSign>();
 
-  if (traffic_sign_reg_elems.size() > 0)
+  for (const auto reg_elem : traffic_sign_reg_elems)
   {
-    // lanelet has a traffic sign reg elem - can have multiple ref lines (but
-    // stop sign should have 1)
-    for (auto j = traffic_sign_reg_elems.begin(); j < traffic_sign_reg_elems.end(); j++)
+    lanelet::ConstLineStrings3d traffic_sign_stoplines = reg_elem->refLines();
+    if (traffic_sign_stoplines.size() > 0)
     {
-      lanelet::ConstLineStrings3d traffic_sign_stoplines = (*j)->refLines();
-      if (traffic_sign_stoplines.size() > 0)
-        stoplines.push_back(traffic_sign_stoplines.front());
+      stoplines.push_back(traffic_sign_stoplines.front());
     }
   }
 
@@ -201,17 +197,15 @@ std::vector<lanelet::ConstLineString3d> query::getTrafficLightStopLines(const la
   std::vector<std::shared_ptr<const lanelet::RightOfWay> > right_of_way_reg_elems =
       ll.regulatoryElementsAs<const lanelet::RightOfWay>();
 
-  if (right_of_way_reg_elems.size() > 0)
+  for (const auto reg_elem : right_of_way_reg_elems)
   {
-    // lanelet has a RightOfWay reg. elem.
-    for (auto j = right_of_way_reg_elems.begin(); j < right_of_way_reg_elems.end(); j++)
+    if (reg_elem->getManeuver(ll) == lanelet::ManeuverType::Yield)
     {
-      if ((*j)->getManeuver(ll) == lanelet::ManeuverType::Yield)
+      // lanelet has a yield reg. elem.
+      lanelet::Optional<lanelet::ConstLineString3d> row_stopline_opt = reg_elem->stopLine();
+      if (!!row_stopline_opt)
       {
-        // lanelet has a yield reg. elem.
-        lanelet::Optional<lanelet::ConstLineString3d> row_stopline_opt = (*j)->stopLine();
-        if (!!row_stopline_opt)
-          stoplines.push_back(row_stopline_opt.get());
+        stoplines.push_back(row_stopline_opt.get());
       }
     }
   }
@@ -263,16 +257,13 @@ std::vector<lanelet::ConstLineString3d> query::getStopSignStopLines(const lanele
     std::vector<std::shared_ptr<const lanelet::AllWayStop>> all_way_stop_reg_elems =
         ll.regulatoryElementsAs<const lanelet::AllWayStop>();
 
-    if (all_way_stop_reg_elems.size() > 0)
+    for (const auto reg_elem : all_way_stop_reg_elems)
     {
-      for (auto j = all_way_stop_reg_elems.begin(); j < all_way_stop_reg_elems.end(); j++)
+      // Only get the stopline for this lanelet
+      lanelet::Optional<lanelet::ConstLineString3d> stopline = reg_elem->getStopLine(ll);
+      if (!!stopline)
       {
-        // Only get the stopline for this lanelet
-        lanelet::Optional<lanelet::ConstLineString3d> stopline = (*j)->getStopLine(ll);
-        if (!!stopline)
-        {
-          stoplines.push_back(stopline.get());
-        }
+        stoplines.push_back(stopline.get());
       }
     }
   }

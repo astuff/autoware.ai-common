@@ -180,36 +180,6 @@ std::vector<lanelet::ConstLineString3d> query::getTrafficLightStopLines(const la
     }
   }
 
-  // find stop lines referenced by traffic signs
-  std::vector<std::shared_ptr<const lanelet::TrafficSign> > traffic_sign_reg_elems =
-      ll.regulatoryElementsAs<const lanelet::TrafficSign>();
-
-  for (const auto reg_elem : traffic_sign_reg_elems)
-  {
-    lanelet::ConstLineStrings3d traffic_sign_stoplines = reg_elem->refLines();
-    if (traffic_sign_stoplines.size() > 0)
-    {
-      stoplines.push_back(traffic_sign_stoplines.front());
-    }
-  }
-
-  // find stop lines referenced by RightOfWay reg. elems.
-  std::vector<std::shared_ptr<const lanelet::RightOfWay> > right_of_way_reg_elems =
-      ll.regulatoryElementsAs<const lanelet::RightOfWay>();
-
-  for (const auto reg_elem : right_of_way_reg_elems)
-  {
-    if (reg_elem->getManeuver(ll) == lanelet::ManeuverType::Yield)
-    {
-      // lanelet has a yield reg. elem.
-      lanelet::Optional<lanelet::ConstLineString3d> row_stopline_opt = reg_elem->stopLine();
-      if (!!row_stopline_opt)
-      {
-        stoplines.push_back(row_stopline_opt.get());
-      }
-    }
-  }
-
   return stoplines;
 }
 
@@ -249,6 +219,23 @@ std::vector<lanelet::ConstLineString3d> query::getStopSignStopLines(const lanele
             checklist.insert(id);
             stoplines.push_back(traffic_sign_stoplines.front());
           }
+        }
+      }
+    }
+
+    // find stop lines referenced by RightOfWay reg. elems.
+    std::vector<std::shared_ptr<const lanelet::RightOfWay> > right_of_way_reg_elems =
+        ll.regulatoryElementsAs<const lanelet::RightOfWay>();
+
+    for (const auto reg_elem : right_of_way_reg_elems)
+    {
+      if (reg_elem->getManeuver(ll) == lanelet::ManeuverType::Yield)
+      {
+        // lanelet has a yield reg. elem.
+        lanelet::Optional<lanelet::ConstLineString3d> row_stopline_opt = reg_elem->stopLine();
+        if (!!row_stopline_opt)
+        {
+          stoplines.push_back(row_stopline_opt.get());
         }
       }
     }

@@ -88,27 +88,28 @@ std::vector<lanelet::TrafficLightConstPtr> trafficLights(const lanelet::ConstLan
 std::vector<lanelet::AutowareTrafficLightConstPtr> autowareTrafficLights(const lanelet::ConstLanelets lanelets);
 
 /**
- * [stopLinesLanelets extracts stoplines that are associated to lanelets]
+ * [getTrafficLightStopLines extracts stoplines that are associated with
+ * traffic lights]
  * @param lanelets [input lanelets]
  * @return         [stop lines that are associated with input lanelets]
  */
-std::vector<lanelet::ConstLineString3d> stopLinesLanelets(const lanelet::ConstLanelets lanelets);
+std::vector<lanelet::ConstLineString3d> getTrafficLightStopLines(const lanelet::ConstLanelets lanelets);
 
 /**
- * [stopLinesLanelet extracts stop lines that are associated with a given
- * lanelet]
+ * [getTrafficLightStopLines extracts stoplines that are associated with
+ * traffic lights]
  * @param ll [input lanelet]
  * @return   [stop lines that are associated with input lanelet]
  */
-std::vector<lanelet::ConstLineString3d> stopLinesLanelet(const lanelet::ConstLanelet ll);
+std::vector<lanelet::ConstLineString3d> getTrafficLightStopLines(const lanelet::ConstLanelet ll);
 
 /**
- * [stopSignes extracts stoplines that are associated with stopsignes]
+ * [getStopSignStopLines extracts stoplines that are associated with stopsigns]
  * @param lanelets     [input lanelets]
  * @param stop_sign_id [sign id of stop sign]
  * @return             [array of stoplines]
  */
-std::vector<lanelet::ConstLineString3d> stopSignStopLines(const lanelet::ConstLanelets lanelets,
+std::vector<lanelet::ConstLineString3d> getStopSignStopLines(const lanelet::ConstLanelets lanelets,
                                                           const std::string& stop_sign_id = "stop_sign");
 
 }  // namespace query

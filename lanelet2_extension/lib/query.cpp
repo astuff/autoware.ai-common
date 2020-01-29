@@ -147,14 +147,14 @@ std::vector<lanelet::AutowareTrafficLightConstPtr> query::autowareTrafficLights(
 }
 
 // return all stop lines and ref lines from a given set of lanelets
-std::vector<lanelet::ConstLineString3d> query::stopLinesLanelets(const lanelet::ConstLanelets lanelets)
+std::vector<lanelet::ConstLineString3d> query::getTrafficLightStopLines(const lanelet::ConstLanelets lanelets)
 {
   std::vector<lanelet::ConstLineString3d> stoplines;
 
   for (auto lli = lanelets.begin(); lli != lanelets.end(); lli++)
   {
     std::vector<lanelet::ConstLineString3d> ll_stoplines;
-    ll_stoplines = query::stopLinesLanelet(*lli);
+    ll_stoplines = query::getTrafficLightStopLines(*lli);
     stoplines.insert(stoplines.end(), ll_stoplines.begin(), ll_stoplines.end());
   }
 
@@ -162,7 +162,7 @@ std::vector<lanelet::ConstLineString3d> query::stopLinesLanelets(const lanelet::
 }
 
 // return all stop and ref lines from a given lanelet
-std::vector<lanelet::ConstLineString3d> query::stopLinesLanelet(const lanelet::ConstLanelet ll)
+std::vector<lanelet::ConstLineString3d> query::getTrafficLightStopLines(const lanelet::ConstLanelet ll)
 {
   std::vector<lanelet::ConstLineString3d> stoplines;
 
@@ -216,27 +216,10 @@ std::vector<lanelet::ConstLineString3d> query::stopLinesLanelet(const lanelet::C
     }
   }
 
-  // Get every AllWayStop reg. elem. that this lanelet references.
-  std::vector<std::shared_ptr<const lanelet::AllWayStop>> all_way_stop_reg_elems =
-      ll.regulatoryElementsAs<const lanelet::AllWayStop>();
-
-  if (all_way_stop_reg_elems.size() > 0)
-  {
-    for (auto j = all_way_stop_reg_elems.begin(); j < all_way_stop_reg_elems.end(); j++)
-    {
-      // Only get the stopline for this lanelet
-      lanelet::Optional<lanelet::ConstLineString3d> stopline = (*j)->getStopLine(ll);
-      if (!!stopline)
-      {
-        stoplines.push_back(stopline.get());
-      }
-    }
-  }
-
   return stoplines;
 }
 
-std::vector<lanelet::ConstLineString3d> query::stopSignStopLines(const lanelet::ConstLanelets lanelets,
+std::vector<lanelet::ConstLineString3d> query::getStopSignStopLines(const lanelet::ConstLanelets lanelets,
                                                                  const std::string& stop_sign_id)
 {
   std::vector<lanelet::ConstLineString3d> stoplines;
@@ -272,6 +255,23 @@ std::vector<lanelet::ConstLineString3d> query::stopSignStopLines(const lanelet::
             checklist.insert(id);
             stoplines.push_back(traffic_sign_stoplines.front());
           }
+        }
+      }
+    }
+
+    // Get every AllWayStop reg. elem. that this lanelet references.
+    std::vector<std::shared_ptr<const lanelet::AllWayStop>> all_way_stop_reg_elems =
+        ll.regulatoryElementsAs<const lanelet::AllWayStop>();
+
+    if (all_way_stop_reg_elems.size() > 0)
+    {
+      for (auto j = all_way_stop_reg_elems.begin(); j < all_way_stop_reg_elems.end(); j++)
+      {
+        // Only get the stopline for this lanelet
+        lanelet::Optional<lanelet::ConstLineString3d> stopline = (*j)->getStopLine(ll);
+        if (!!stopline)
+        {
+          stoplines.push_back(stopline.get());
         }
       }
     }

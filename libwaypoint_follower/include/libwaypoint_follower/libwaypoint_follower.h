@@ -25,7 +25,7 @@
 // ROS header
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
-#include "autoware_msgs/Lane.h"
+#include <autoware_msgs/Lane.h>
 
 enum class LaneDirection : int
 {
@@ -70,10 +70,6 @@ inline double mps2kmph(double velocity_mps)
 {
   return (velocity_mps * 60 * 60) / 1000;
 }
-inline double deg2rad(double deg)
-{
-  return deg * M_PI / 180;
-}  // convert degree to radian
 
 tf::Vector3 point2vector(geometry_msgs::Point point);                         // convert point to vector
 geometry_msgs::Point vector2point(tf::Vector3 vector);                        // convert vector to point

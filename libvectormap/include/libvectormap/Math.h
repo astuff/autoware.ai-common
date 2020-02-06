@@ -65,8 +65,8 @@ inline double distance(const Point4 &p1, const Point4 &p2)
 
 inline double distance(const double &x1, const double &y1, const double &x2, const double &y2)
 {
-	Point2 p(x1, y1), q(x2, y2);
-	return distance (p, q);
+  Point2 p(x1, y1), q(x2, y2);
+  return distance (p, q);
 }
 
 inline Vector2 perpendicular(const Vector2 &v)

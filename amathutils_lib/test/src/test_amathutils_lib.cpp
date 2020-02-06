@@ -85,23 +85,23 @@ TEST(TestSuite, GetNearPointOnLine2D)
 {
   geometry_msgs::Point a, b, p, nearPOut, nearP;
 
-	a.x = 0;
-	a.y = 0;
-	a.z = 0;
+  a.x = 0;
+  a.y = 0;
+  a.z = 0;
 
-	b.x = 6;
-	b.y = 2;
-	b.z = 0;
+  b.x = 6;
+  b.y = 2;
+  b.z = 0;
 
-	p.x = 2;
-	p.y = 4;
-	p.z = 0;
+  p.x = 2;
+  p.y = 4;
+  p.z = 0;
 
-	nearP.x = 3;
-	nearP.y = 1;
-	nearP.z = 0;
+  nearP.x = 3;
+  nearP.y = 1;
+  nearP.z = 0;
 
-	nearPOut = amathutils::getNearPtOnLine(p, a, b);
+  nearPOut = amathutils::getNearPtOnLine(p, a, b);
 
   ASSERT_DOUBLE_EQ(nearPOut.x, nearP.x) << "nearPoint coordinate X should be " << nearP.x;
   ASSERT_DOUBLE_EQ(nearPOut.y, nearP.y) << "nearPoint coordinate X should be " << nearP.y;
@@ -114,27 +114,27 @@ TEST(TestSuite, GetNearPointOnLine3D)
   geometry_msgs::Point a, b, p, nearPOut, nearP;
   double threshold = 0.00000001;
 
-	a.x = -2;
-	a.y = -4;
-	a.z = 5;
+  a.x = -2;
+  a.y = -4;
+  a.z = 5;
 
-	b.x = 0;
-	b.y = 0;
-	b.z = 1;
+  b.x = 0;
+  b.y = 0;
+  b.z = 1;
 
-	p.x = 1;
-	p.y = 1;
-	p.z = 1;
+  p.x = 1;
+  p.y = 1;
+  p.z = 1;
 
-	nearP.x = 1.0/3.0;
-	nearP.y = 2.0/3.0;
-	nearP.z = 1.0/3.0;
+  nearP.x = 1.0/3.0;
+  nearP.y = 2.0/3.0;
+  nearP.z = 1.0/3.0;
 
-	nearPOut = amathutils::getNearPtOnLine(p, a, b);
+  nearPOut = amathutils::getNearPtOnLine(p, a, b);
 
-	ASSERT_NEAR(nearPOut.x, nearP.x, threshold) << "nearPoint coordinate X should be " << nearP.x;
-	ASSERT_NEAR(nearPOut.y, nearP.y, threshold) << "nearPoint coordinate X should be " << nearP.y;
-	ASSERT_NEAR(nearPOut.z, nearP.z, threshold) << "nearPoint coordinate X should be " << nearP.z;
+  ASSERT_NEAR(nearPOut.x, nearP.x, threshold) << "nearPoint coordinate X should be " << nearP.x;
+  ASSERT_NEAR(nearPOut.y, nearP.y, threshold) << "nearPoint coordinate X should be " << nearP.y;
+  ASSERT_NEAR(nearPOut.z, nearP.z, threshold) << "nearPoint coordinate X should be " << nearP.z;
 }
 
 // Values from http://www.math.usm.edu/lambers/mat169/fall09/lecture17.pdf - The Distance Formula
@@ -143,21 +143,21 @@ TEST(TestSuite, GetDistance)
   geometry_msgs::Point ptA, ptB;
   geometry_msgs::Pose poseA, poseB;
 
-	ptA.x = 2;
-	ptA.y = 3;
-	ptA.z = 1;
+  ptA.x = 2;
+  ptA.y = 3;
+  ptA.z = 1;
 
-	ptB.x = 8;
-	ptB.y = -5;
-	ptB.z = 0;
+  ptB.x = 8;
+  ptB.y = -5;
+  ptB.z = 0;
 
-	poseA.position.x = 2;
-	poseA.position.y = 3;
-	poseA.position.z = 1;
+  poseA.position.x = 2;
+  poseA.position.y = 3;
+  poseA.position.z = 1;
 
-	poseB.position.x = 8;
-	poseB.position.y = -5;
-	poseB.position.z = 0;
+  poseB.position.x = 8;
+  poseB.position.y = -5;
+  poseB.position.z = 0;
 
   ASSERT_DOUBLE_EQ(amathutils::find_distance(ptA, ptB), sqrt(101))
     << "Distance between points should be " << sqrt(101);
@@ -170,16 +170,16 @@ TEST(TestSuite, GetAngle)
 {
   geometry_msgs::Point ptA, ptB;
 
-	ptA.x = 0;
-	ptA.y = 10;
-	ptA.z = 0;
+  ptA.x = 0;
+  ptA.y = 10;
+  ptA.z = 0;
 
-	ptB.x = 10;
-	ptB.y = 20;
-	ptB.z = 0;
+  ptB.x = 10;
+  ptB.y = 20;
+  ptB.z = 0;
 
-	ASSERT_DOUBLE_EQ(amathutils::find_angle(ptA, ptB), 45) << "Angle should be 45deg";
-	ASSERT_DOUBLE_EQ(amathutils::find_angle(ptB, ptA), 225) << "Angle should be -45deg";
+  ASSERT_DOUBLE_EQ(amathutils::find_angle(ptA, ptB), 45) << "Angle should be 45deg";
+  ASSERT_DOUBLE_EQ(amathutils::find_angle(ptB, ptA), 225) << "Angle should be -45deg";
 }
 
 // Values from https://www.mathopenref.com/coordintersection.html

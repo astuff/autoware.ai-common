@@ -82,6 +82,7 @@ void removeImpossibleCandidates(const lanelet::LaneletMapPtr lanelet_map,
     // Do not remove candidates if previous waypoint does not have any candidates
     if (prev_wp_candidate_ids_ptr->empty())
     {
+      prev_wp_gid = wp.gid;
       continue;
     }
 

@@ -86,6 +86,13 @@ void removeImpossibleCandidates(const lanelet::LaneletMapPtr lanelet_map,
       continue;
     }
 
+    // Skip if there is only one candidate lanelet for this waypoint
+    if (candidate_ids_ptr->size() == 1)
+    {
+      prev_wp_gid = wp.gid;
+      continue;
+    }
+
     std::vector<int> removing_ids;
 
     // Loop over each candidate lanelet id

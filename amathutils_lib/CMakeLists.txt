@@ -5,8 +5,9 @@ find_package(autoware_build_flags REQUIRED)
 
 find_package(Eigen3 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
   autoware_msgs
+  roscpp
+  roslint
   tf
   tf2
 )
@@ -50,7 +51,15 @@ install(TARGETS amathutils_lib
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-        
+
+file(GLOB_RECURSE ROSLINT_FILES
+  LIST_DIRECTORIES false
+  *.cpp *.h *.hpp
+)
+
+list(APPEND ROSLINT_CPP_OPTS "--extensions=cc,h,hpp,cpp,cu,cuh" "--filter=-build/c++11,-runtime/references")
+roslint_cpp(${ROSLINT_FILES})
+
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   add_rostest_gtest(amathutils-test test/test_amathutils_lib.test test/src/test_amathutils_lib.cpp)
@@ -67,5 +76,5 @@ if(CATKIN_ENABLE_TESTING)
                     test/src/test_butterworth_filter.cpp
                     src/butterworth_filter.cpp) 
   target_link_libraries(test-butterworth_filter ${catkin_LIBRARIES})
-		  
+  roslint_add_test()
 endif()

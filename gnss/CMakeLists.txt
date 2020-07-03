@@ -37,6 +37,18 @@ list(APPEND ROSLINT_CPP_OPTS
 
 roslint_cpp(${ROSLINT_FILES})
 
+file(GLOB_RECURSE ROSLINT_FILES
+  LIST_DIRECTORIES false
+  *.cpp *.h *.hpp
+)
+
+list(APPEND ROSLINT_CPP_OPTS
+  "--extensions=cc,h,hpp,cpp,cu,cuh"
+  "--filter=-build/c++14"
+)
+
+roslint_cpp(${ROSLINT_FILES})
+
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.hpp"

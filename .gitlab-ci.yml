@@ -28,7 +28,7 @@ variables:
     - colcon build --cmake-target tests --cmake-args -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage" -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage" -DCMAKE_BUILD_TYPE=Debug
     - lcov --initial --directory build --capture --output-file lcov.base
     - colcon test
-    - colcon test-result
+    - colcon test-result --verbose
     - lcov --directory build --capture --output-file lcov.test
     - lcov -a lcov.base -a lcov.test -o lcov.total
     - lcov -r lcov.total '*/tests/*' '*/test/*' '*/build/*' '*/devel/*' '*/install/*' '*/log/*' '/usr/*' '/opt/*' '/tmp/*' '*/CMakeCCompilerId.c' '*/CMakeCXXCompilerId.cpp' -o lcov.total.filtered
@@ -68,10 +68,7 @@ variables:
     # tests are built and any fixtures are set up.
     - colcon build --cmake-target tests --cmake-args -DCMAKE_BUILD_TYPE=Debug
     - colcon test
-    - colcon test-result
-  only:
-    - merge_requests
-    - master
+    - colcon test-result --verbose
 
 .build_cross_vars: &build_cross_vars
     AUTOWARE_TARGET_ARCH: aarch64
@@ -82,7 +79,7 @@ variables:
   script:
     - mkdir -p src_tmp/$CI_PROJECT_NAME && mv `find -maxdepth 1 -not -name . -not -name src_tmp -not -name $VCS_FILE` src_tmp/$CI_PROJECT_NAME && mv src_tmp/ src/
     - apt update -qq && apt install -y python3-vcstool git wget
-    - wget https://gitlab.com/astuff/autoware.ai/autoware/raw/as/master/ros/cross_toolchain.cmake
+    - wget https://gitlab.com/astuff/autoware.ai/docker/raw/master/crossbuild/cross_toolchain.cmake
     - source ${AUTOWARE_SYSROOT}/opt/ros/${ROS_DISTRO}/setup.bash
     - vcs validate < $VCS_FILE
     - vcs import src/ < $VCS_FILE
@@ -101,11 +98,26 @@ build_melodic:
   stage: build
   image: autonomoustuff/autoware:bleedingedge-melodic-base
   <<: *build_common
+  only:
+    - merge_requests
+    - master
 
 build_melodic_cuda:
   stage: build
   image: autonomoustuff/autoware:bleedingedge-melodic-base-cuda
   <<: *build_cuda
+  only:
+    - merge_requests
+    - master
+
+build_melodic_arm64:
+  tags:
+    - arm64
+  stage: build
+  image: autoware/arm64v8:bleedingedge-melodic-base
+  <<: *build_common
+  only:
+    - branches@autowarefoundation/autoware.ai/common
 
 build_melodic_cross:
   stage: build
@@ -114,6 +126,9 @@ build_melodic_cross:
     ROS_DISTRO: melodic
     <<: *build_cross_vars
   <<: *build_cross_common
+  only:
+    - merge_requests
+    - master
 
 pages:
   stage: deploy

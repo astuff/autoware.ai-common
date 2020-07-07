@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef LIBWAYPOINT_FOLLOWER_TEST_LIBWAYPOINT_FOLLOWER_H
+#define LIBWAYPOINT_FOLLOWER_TEST_LIBWAYPOINT_FOLLOWER_H
+
 #include <gtest/gtest.h>
 #include "libwaypoint_follower/libwaypoint_follower.h"
 
@@ -28,9 +31,10 @@ struct DirectionCheckDataSet
 {
   int idx;
   double vel;
-  DirectionCheckDataSet(int i, double v) : idx(i), vel(v){}
-  DirectionCheckDataSet(){}
-  ~DirectionCheckDataSet(){}
+  DirectionCheckDataSet(int i, double v) :
+    idx(i), vel(v)
+  {}
+  DirectionCheckDataSet() {}
 };
 
 struct ClosestCheckDataSet
@@ -41,12 +45,12 @@ struct ClosestCheckDataSet
   int num;
   geometry_msgs::PoseStamped pose;
   ClosestCheckDataSet(int d, double v, double o, int n, const geometry_msgs::PoseStamped& p)
-    : dir(d), vel(v), offset(o), num(n), pose(p){}
-  ClosestCheckDataSet(){}
-  ~ClosestCheckDataSet(){}
+    : dir(d), vel(v), offset(o), num(n), pose(p) {}
+  ClosestCheckDataSet() {}
 };
 
-class LibWaypointFollowerTestClass {
+class LibWaypointFollowerTestClass
+{
 public:
   LibWaypointFollowerTestClass() {}
   autoware_msgs::Lane generateLane(int driving_direction, double velocity)
@@ -62,7 +66,7 @@ public:
       static autoware_msgs::Waypoint wp;
       wp.gid = idx;
       wp.lid = idx;
-      wp.pose.pose.position.x = driving_direction * ((double)idx + offset);
+      wp.pose.pose.position.x = driving_direction * (static_cast<double>(idx) + offset);
       wp.pose.pose.position.y = 0.0;
       wp.pose.pose.position.z = 0.0;
       wp.twist.twist.linear.x = velocity;
@@ -75,6 +79,7 @@ public:
     }
     return std::move(lane);
   }
+
   geometry_msgs::PoseStamped generateCurrentPose(double x, double y, double yaw)
   {
     geometry_msgs::PoseStamped pose;
@@ -85,3 +90,5 @@ public:
     return std::move(pose);
   }
 };
+
+#endif  // LIBWAYPOINT_FOLLOWER_TEST_LIBWAYPOINT_FOLLOWER_H

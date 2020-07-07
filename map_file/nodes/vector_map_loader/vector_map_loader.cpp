@@ -100,7 +100,7 @@ using vector_map::createPoleMarker;
 namespace
 {
 
-enum LoadMode {
+enum class LoadMode {
   FILE,
   DIRECTORY,
   DOWNLOAD
@@ -120,15 +120,18 @@ bool isDownloaded(const std::string& local_path)
 }
 
 template <class T, class U>
-vector_map::category_t registerVectormapPortion(const std::string& file_path, ros::Publisher& publisher, std::string topic_name, vector_map::category_t category, ros::NodeHandle& nh)
+vector_map::category_t registerVectormapPortion(
+  const std::string& file_path, ros::Publisher *publisher,
+  const std::string topic_name, const vector_map::category_t category,
+  ros::NodeHandle *nh)
 {
   U obj_array;
   obj_array.header.frame_id = "map";
   obj_array.data = vector_map::parse<T>(file_path);
   if (!obj_array.data.empty())
   {
-    publisher = nh.advertise<U>(topic_name, 1, true);
-    publisher.publish(obj_array);
+    *publisher = nh->advertise<U>(topic_name, 1, true);
+    publisher->publish(obj_array);
     return category;
   }
   else
@@ -960,7 +963,7 @@ int main(int argc, char **argv)
     if (argc < 2)
     {
       printUsage();
-      return EXIT_FAILURE;
+      ros::shutdown();
     }
 
     if (strcmp(argv[1], "download") == 0)
@@ -969,7 +972,7 @@ int main(int argc, char **argv)
       if (argc < 4)
       {
         printUsage();
-        return EXIT_FAILURE;
+        ros::shutdown();
       }
     }
   }
@@ -1136,131 +1139,131 @@ int main(int argc, char **argv)
     }
     else if (file_name == "point.csv")
     {
-      category |= registerVectormapPortion<Point, PointArray>(file_path, point_pub, "vector_map_info/point", Category::POINT, nh);
+      category |= registerVectormapPortion<Point, PointArray>(file_path, &point_pub, "vector_map_info/point", Category::POINT, &nh);
     }
     else if (file_name == "vector.csv")
     {
-      category |= registerVectormapPortion<Vector, VectorArray>(file_path, vector_pub, "vector_map_info/vector", Category::VECTOR, nh);
+      category |= registerVectormapPortion<Vector, VectorArray>(file_path, &vector_pub, "vector_map_info/vector", Category::VECTOR, &nh);
     }
     else if (file_name == "line.csv")
     {
-      category |= registerVectormapPortion<Line, LineArray>(file_path, line_pub, "vector_map_info/line", Category::LINE, nh);
+      category |= registerVectormapPortion<Line, LineArray>(file_path, &line_pub, "vector_map_info/line", Category::LINE, &nh);
     }
     else if (file_name == "area.csv")
     {
-      category |= registerVectormapPortion<Area, AreaArray>(file_path, area_pub, "vector_map_info/area", Category::AREA, nh);
+      category |= registerVectormapPortion<Area, AreaArray>(file_path, &area_pub, "vector_map_info/area", Category::AREA, &nh);
     }
     else if (file_name == "pole.csv")
     {
-      category |= registerVectormapPortion<Pole, PoleArray>(file_path, pole_pub, "vector_map_info/pole", Category::POLE, nh);
+      category |= registerVectormapPortion<Pole, PoleArray>(file_path, &pole_pub, "vector_map_info/pole", Category::POLE, &nh);
     }
     else if (file_name == "box.csv")
     {
-      category |= registerVectormapPortion<Box, BoxArray>(file_path, box_pub, "vector_map_info/box", Category::BOX, nh);
+      category |= registerVectormapPortion<Box, BoxArray>(file_path, &box_pub, "vector_map_info/box", Category::BOX, &nh);
     }
     else if (file_name == "dtlane.csv")
     {
-      category |= registerVectormapPortion<DTLane, DTLaneArray>(file_path, dtlane_pub, "vector_map_info/dtlane", Category::DTLANE, nh);
+      category |= registerVectormapPortion<DTLane, DTLaneArray>(file_path, &dtlane_pub, "vector_map_info/dtlane", Category::DTLANE, &nh);
     }
     else if (file_name == "node.csv")
     {
-      category |= registerVectormapPortion<Node, NodeArray>(file_path, node_pub, "vector_map_info/node", Category::NODE, nh);
+      category |= registerVectormapPortion<Node, NodeArray>(file_path, &node_pub, "vector_map_info/node", Category::NODE, &nh);
     }
     else if (file_name == "lane.csv")
     {
-      category |= registerVectormapPortion<Lane, LaneArray>(file_path, lane_pub, "vector_map_info/lane", Category::LANE, nh);
+      category |= registerVectormapPortion<Lane, LaneArray>(file_path, &lane_pub, "vector_map_info/lane", Category::LANE, &nh);
     }
     else if (file_name == "wayarea.csv")
     {
-      category |= registerVectormapPortion<WayArea, WayAreaArray>(file_path, way_area_pub, "vector_map_info/way_area", Category::WAY_AREA, nh);
+      category |= registerVectormapPortion<WayArea, WayAreaArray>(file_path, &way_area_pub, "vector_map_info/way_area", Category::WAY_AREA, &nh);
     }
     else if (file_name == "roadedge.csv")
     {
-      category |= registerVectormapPortion<RoadEdge, RoadEdgeArray>(file_path, road_edge_pub, "vector_map_info/road_edge", Category::ROAD_EDGE, nh);
+      category |= registerVectormapPortion<RoadEdge, RoadEdgeArray>(file_path, &road_edge_pub, "vector_map_info/road_edge", Category::ROAD_EDGE, &nh);
     }
     else if (file_name == "gutter.csv")
     {
-      category |= registerVectormapPortion<Gutter, GutterArray>(file_path, gutter_pub, "vector_map_info/gutter", Category::GUTTER, nh);
+      category |= registerVectormapPortion<Gutter, GutterArray>(file_path, &gutter_pub, "vector_map_info/gutter", Category::GUTTER, &nh);
     }
     else if (file_name == "curb.csv")
     {
-      category |= registerVectormapPortion<Curb, CurbArray>(file_path, curb_pub, "vector_map_info/curb", Category::CURB, nh);
+      category |= registerVectormapPortion<Curb, CurbArray>(file_path, &curb_pub, "vector_map_info/curb", Category::CURB, &nh);
     }
     else if (file_name == "whiteline.csv")
     {
-      category |= registerVectormapPortion<WhiteLine, WhiteLineArray>(file_path, white_line_pub, "vector_map_info/white_line", Category::WHITE_LINE, nh);
+      category |= registerVectormapPortion<WhiteLine, WhiteLineArray>(file_path, &white_line_pub, "vector_map_info/white_line", Category::WHITE_LINE, &nh);
     }
     else if (file_name == "stopline.csv")
     {
-      category |= registerVectormapPortion<StopLine, StopLineArray>(file_path, stop_line_pub, "vector_map_info/stop_line", Category::STOP_LINE, nh);
+      category |= registerVectormapPortion<StopLine, StopLineArray>(file_path, &stop_line_pub, "vector_map_info/stop_line", Category::STOP_LINE, &nh);
     }
     else if (file_name == "zebrazone.csv")
     {
-      category |= registerVectormapPortion<ZebraZone, ZebraZoneArray>(file_path, zebra_zone_pub, "vector_map_info/zebra_zone", Category::ZEBRA_ZONE, nh);
+      category |= registerVectormapPortion<ZebraZone, ZebraZoneArray>(file_path, &zebra_zone_pub, "vector_map_info/zebra_zone", Category::ZEBRA_ZONE, &nh);
     }
     else if (file_name == "crosswalk.csv")
     {
-      category |= registerVectormapPortion<CrossWalk, CrossWalkArray>(file_path, cross_walk_pub, "vector_map_info/cross_walk", Category::CROSS_WALK, nh);
+      category |= registerVectormapPortion<CrossWalk, CrossWalkArray>(file_path, &cross_walk_pub, "vector_map_info/cross_walk", Category::CROSS_WALK, &nh);
     }
     else if (file_name == "road_surface_mark.csv")
     {
-      category |= registerVectormapPortion<RoadMark, RoadMarkArray>(file_path, road_mark_pub, "vector_map_info/road_mark", Category::ROAD_MARK, nh);
+      category |= registerVectormapPortion<RoadMark, RoadMarkArray>(file_path, &road_mark_pub, "vector_map_info/road_mark", Category::ROAD_MARK, &nh);
     }
     else if (file_name == "poledata.csv")
     {
-      category |= registerVectormapPortion<RoadPole, RoadPoleArray>(file_path, road_pole_pub, "vector_map_info/road_pole", Category::ROAD_POLE, nh);
+      category |= registerVectormapPortion<RoadPole, RoadPoleArray>(file_path, &road_pole_pub, "vector_map_info/road_pole", Category::ROAD_POLE, &nh);
     }
     else if (file_name == "roadsign.csv")
     {
-      category |= registerVectormapPortion<RoadSign, RoadSignArray>(file_path, road_sign_pub, "vector_map_info/road_sign", Category::ROAD_SIGN, nh);
+      category |= registerVectormapPortion<RoadSign, RoadSignArray>(file_path, &road_sign_pub, "vector_map_info/road_sign", Category::ROAD_SIGN, &nh);
     }
     else if (file_name == "signaldata.csv")
     {
-      category |= registerVectormapPortion<Signal, SignalArray>(file_path, signal_pub, "vector_map_info/signal", Category::SIGNAL, nh);
+      category |= registerVectormapPortion<Signal, SignalArray>(file_path, &signal_pub, "vector_map_info/signal", Category::SIGNAL, &nh);
     }
     else if (file_name == "streetlight.csv")
     {
-      category |= registerVectormapPortion<StreetLight, StreetLightArray>(file_path, street_light_pub, "vector_map_info/street_light", Category::STREET_LIGHT, nh);
+      category |= registerVectormapPortion<StreetLight, StreetLightArray>(file_path, &street_light_pub, "vector_map_info/street_light", Category::STREET_LIGHT, &nh);
     }
     else if (file_name == "utilitypole.csv")
     {
-      category |= registerVectormapPortion<UtilityPole, UtilityPoleArray>(file_path, utility_pole_pub, "vector_map_info/utility_pole", Category::UTILITY_POLE, nh);
+      category |= registerVectormapPortion<UtilityPole, UtilityPoleArray>(file_path, &utility_pole_pub, "vector_map_info/utility_pole", Category::UTILITY_POLE, &nh);
     }
     else if (file_name == "guardrail.csv")
     {
-      category |= registerVectormapPortion<GuardRail, GuardRailArray>(file_path, guard_rail_pub, "vector_map_info/guard_rail", Category::GUARD_RAIL, nh);
+      category |= registerVectormapPortion<GuardRail, GuardRailArray>(file_path, &guard_rail_pub, "vector_map_info/guard_rail", Category::GUARD_RAIL, &nh);
     }
     else if (file_name == "sidewalk.csv")
     {
-      category |= registerVectormapPortion<SideWalk, SideWalkArray>(file_path, side_walk_pub, "vector_map_info/side_walk", Category::SIDE_WALK, nh);
+      category |= registerVectormapPortion<SideWalk, SideWalkArray>(file_path, &side_walk_pub, "vector_map_info/side_walk", Category::SIDE_WALK, &nh);
     }
     else if (file_name == "driveon_portion.csv")
     {
-      category |= registerVectormapPortion<DriveOnPortion, DriveOnPortionArray>(file_path, drive_on_portion_pub, "vector_map_info/drive_on_portion", Category::DRIVE_ON_PORTION, nh);
+      category |= registerVectormapPortion<DriveOnPortion, DriveOnPortionArray>(file_path, &drive_on_portion_pub, "vector_map_info/drive_on_portion", Category::DRIVE_ON_PORTION, &nh);
     }
     else if (file_name == "intersection.csv")
     {
-      category |= registerVectormapPortion<CrossRoad, CrossRoadArray>(file_path, cross_road_pub, "vector_map_info/cross_road", Category::CROSS_ROAD, nh);
+      category |= registerVectormapPortion<CrossRoad, CrossRoadArray>(file_path, &cross_road_pub, "vector_map_info/cross_road", Category::CROSS_ROAD, &nh);
     }
     else if (file_name == "sidestrip.csv")
     {
-      category |= registerVectormapPortion<SideStrip, SideStripArray>(file_path, side_strip_pub, "vector_map_info/side_strip", Category::SIDE_STRIP, nh);
+      category |= registerVectormapPortion<SideStrip, SideStripArray>(file_path, &side_strip_pub, "vector_map_info/side_strip", Category::SIDE_STRIP, &nh);
     }
     else if (file_name == "curvemirror.csv")
     {
-      category |= registerVectormapPortion<CurveMirror, CurveMirrorArray>(file_path, curve_mirror_pub, "vector_map_info/curve_mirror", Category::CURVE_MIRROR, nh);
+      category |= registerVectormapPortion<CurveMirror, CurveMirrorArray>(file_path, &curve_mirror_pub, "vector_map_info/curve_mirror", Category::CURVE_MIRROR, &nh);
     }
     else if (file_name == "wall.csv")
     {
-      category |= registerVectormapPortion<Wall, WallArray>(file_path, wall_pub, "vector_map_info/wall", Category::WALL, nh);
+      category |= registerVectormapPortion<Wall, WallArray>(file_path, &wall_pub, "vector_map_info/wall", Category::WALL, &nh);
     }
     else if (file_name == "fence.csv")
     {
-      category |= registerVectormapPortion<Fence, FenceArray>(file_path, fence_pub, "vector_map_info/fence", Category::FENCE, nh);
+      category |= registerVectormapPortion<Fence, FenceArray>(file_path, &fence_pub, "vector_map_info/fence", Category::FENCE, &nh);
     }
     else if (file_name == "railroad_crossing.csv")
     {
-      category |= registerVectormapPortion<RailCrossing, RailCrossingArray>(file_path, rail_crossing_pub, "vector_map_info/rail_crossing", Category::RAIL_CROSSING, nh);
+      category |= registerVectormapPortion<RailCrossing, RailCrossingArray>(file_path, &rail_crossing_pub, "vector_map_info/rail_crossing", Category::RAIL_CROSSING, &nh);
     }
     else
     {

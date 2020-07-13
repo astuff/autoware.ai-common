@@ -341,7 +341,7 @@ sensor_msgs::PointCloud2 create_pcd(const std::vector<std::string>& pcd_paths, i
     {
       if (pcl::io::loadPCDFile(path.c_str(), pcd) == -1)
       {
-        std::cerr << "load failed " << path << std::endl;
+        ROS_ERROR("Failed to load: %s", path.c_str());
         if (ret_err)
           *ret_err = 1;
       }
@@ -350,7 +350,7 @@ sensor_msgs::PointCloud2 create_pcd(const std::vector<std::string>& pcd_paths, i
     {
       if (pcl::io::loadPCDFile(path.c_str(), part) == -1)
       {
-        std::cerr << "load failed " << path << std::endl;
+        ROS_ERROR("Failed to load: %s", path.c_str());
         if (ret_err)
           *ret_err = 1;
       }
@@ -358,7 +358,7 @@ sensor_msgs::PointCloud2 create_pcd(const std::vector<std::string>& pcd_paths, i
       pcd.row_step += part.row_step;
       pcd.data.insert(pcd.data.end(), part.data.begin(), part.data.end());
     }
-    std::cerr << "load " << path << std::endl;
+    ROS_INFO("Loaded %s", path.c_str());
     if (!ros::ok())
       break;
   }
@@ -574,6 +574,7 @@ int main(int argc, char** argv)
   {
     int err = 0;
     publish_pcd(create_pcd(pcd_file_paths, &err), &err);
+    ROS_INFO("PCD Map Loaded");
   }
   else
   {

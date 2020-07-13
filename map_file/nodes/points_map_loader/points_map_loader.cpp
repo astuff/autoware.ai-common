@@ -574,7 +574,6 @@ int main(int argc, char** argv)
   {
     int err = 0;
     publish_pcd(create_pcd(pcd_file_paths, &err), &err);
-    ROS_INFO("PCD Map Loaded");
   }
   else
   {

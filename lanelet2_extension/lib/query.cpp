@@ -241,37 +241,6 @@ std::vector<lanelet::ConstLineString3d> query::getTrafficSignStopLines(const lan
         }
       }
     }
-
-    // find stop lines referenced by RightOfWay reg. elems.
-    std::vector<std::shared_ptr<const lanelet::RightOfWay> > right_of_way_reg_elems =
-        ll.regulatoryElementsAs<const lanelet::RightOfWay>();
-
-    for (const auto reg_elem : right_of_way_reg_elems)
-    {
-      if (reg_elem->getManeuver(ll) == lanelet::ManeuverType::Yield)
-      {
-        // lanelet has a yield reg. elem.
-        lanelet::Optional<lanelet::ConstLineString3d> row_stopline_opt = reg_elem->stopLine();
-        if (!!row_stopline_opt)
-        {
-          stoplines.push_back(row_stopline_opt.get());
-        }
-      }
-    }
-
-    // Get every AllWayStop reg. elem. that this lanelet references.
-    std::vector<std::shared_ptr<const lanelet::AllWayStop>> all_way_stop_reg_elems =
-        ll.regulatoryElementsAs<const lanelet::AllWayStop>();
-
-    for (const auto reg_elem : all_way_stop_reg_elems)
-    {
-      // Only get the stopline for this lanelet
-      lanelet::Optional<lanelet::ConstLineString3d> stopline = reg_elem->getStopLine(ll);
-      if (!!stopline)
-      {
-        stoplines.push_back(stopline.get());
-      }
-    }
   }
   return stoplines;
 }

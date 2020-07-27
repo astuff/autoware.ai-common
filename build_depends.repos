@@ -7,7 +7,3 @@ repositories:
     type: git
     url: https://github.com/fzi-forschungszentrum-informatik/Lanelet2.git
     version: 1.0.0
-  depends/vendor/mrt_cmake_modules:
-    type: git
-    url: https://github.com/KIT-MRT/mrt_cmake_modules.git
-    version: 1.0.0

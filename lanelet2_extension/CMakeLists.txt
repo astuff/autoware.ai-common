@@ -1,25 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(lanelet2_extension)
 
-find_package(PkgConfig)
-find_path(
-  GeographicLib_INCLUDE_DIR GeographicLib/Config.h
-  PATH_SUFFIXES GeographicLib
-)
-set(GeographicLib_INCLUDE_DIRS ${GeographicLib_INCLUDE_DIR})
-
-find_library(GeographicLib_LIBRARIES
-  NAMES Geographic
-)
-
-find_library(PUGIXML_LIBRARIES
-  NAMES pugixml
-)
-
-find_path(PUGIXML_INCLUDE_DIRS
-  NAMES pugixml.hpp
-  PATH_SUFFIXES pugixml
-)
+find_package(mrt_cmake_modules REQUIRED)
+include(GatherDeps)
 
 find_package(autoware_build_flags REQUIRED)
 

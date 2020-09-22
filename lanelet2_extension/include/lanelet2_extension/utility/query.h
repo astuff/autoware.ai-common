@@ -104,13 +104,42 @@ std::vector<lanelet::ConstLineString3d> getTrafficLightStopLines(const lanelet::
 std::vector<lanelet::ConstLineString3d> getTrafficLightStopLines(const lanelet::ConstLanelet ll);
 
 /**
- * [getStopSignStopLines extracts stoplines that are associated with stopsigns]
+ * [getStopSignStopLines extracts stoplines that are associated with any stop
+ * signs, regardless of the type of regulatory element]
  * @param lanelets     [input lanelets]
  * @param stop_sign_id [sign id of stop sign]
  * @return             [array of stoplines]
  */
 std::vector<lanelet::ConstLineString3d> getStopSignStopLines(const lanelet::ConstLanelets lanelets,
-                                                          const std::string& stop_sign_id = "stop_sign");
+                                                             const std::string& stop_sign_id = "stop_sign");
+
+/**
+ * [getTrafficSignStopLines extracts stoplines that are associated with
+ * traffic_sign regulatory elements ]
+ * @param lanelets     [input lanelets]
+ * @param stop_sign_id [sign id of stop sign]
+ * @return             [array of stoplines]
+ */
+std::vector<lanelet::ConstLineString3d> getTrafficSignStopLines(const lanelet::ConstLanelets lanelets,
+                                                                const std::string& stop_sign_id = "stop_sign");
+
+/**
+ * [getRightOfWayStopLines extracts stoplines that are associated with
+ * right_of_way regulatory elements ]
+ * @param lanelets     [input lanelets]
+ * @param stop_sign_id [sign id of stop sign]
+ * @return             [array of stoplines]
+ */
+std::vector<lanelet::ConstLineString3d> getRightOfWayStopLines(const lanelet::ConstLanelets lanelets);
+
+/**
+ * [getAllWayStopStopLines extracts stoplines that are associated with
+ * all_way_stop regulatory elements ]
+ * @param lanelets     [input lanelets]
+ * @param stop_sign_id [sign id of stop sign]
+ * @return             [array of stoplines]
+ */
+std::vector<lanelet::ConstLineString3d> getAllWayStopStopLines(const lanelet::ConstLanelets lanelets);
 
 }  // namespace query
 }  // namespace utils

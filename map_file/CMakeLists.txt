@@ -5,34 +5,37 @@ project(map_file)
 find_package(autoware_build_flags REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
+  autoware_msgs
+  geometry_msgs
+  lanelet2_extension
+  pcl_ros
   roscpp
   std_msgs
-  visualization_msgs
-  geometry_msgs
   tf
-  pcl_ros
-  tf2_ros
   tf2_geometry_msgs
-  autoware_msgs
+  tf2_ros
   vector_map
-  lanelet2_extension
+  visualization_msgs
 )
 
 find_package(PCL REQUIRED COMPONENTS io)
-# See: https://github.com/ros-perception/perception_pcl/blob/lunar-devel/pcl_ros/CMakeLists.txt#L10-L22
-if (NOT "${PCL_LIBRARIES}" STREQUAL "")
-    # FIXME: this causes duplicates and not found error in ubuntu:zesty
-    list(REMOVE_ITEM PCL_LIBRARIES "/usr/lib/libmpi.so")
+find_package(Boost REQUIRED COMPONENTS filesystem)
 
-    # For debian: https://github.com/ros-perception/perception_pcl/issues/139
-    list(REMOVE_ITEM PCL_IO_LIBRARIES
-            "vtkGUISupportQt"
-            "vtkGUISupportQtOpenGL"
-            "vtkGUISupportQtSQL"
-            "vtkGUISupportQtWebkit"
-            "vtkViewsQt"
-            "vtkRenderingQt")
-endif ()
+# See: https://github.com/ros-perception/perception_pcl/blob/lunar-devel/pcl_ros/CMakeLists.txt#L10-L22
+if(NOT "${PCL_LIBRARIES}" STREQUAL "")
+  # FIXME: this causes duplicates and not found error in ubuntu:zesty
+  list(REMOVE_ITEM PCL_LIBRARIES "/usr/lib/libmpi.so")
+
+  # For debian: https://github.com/ros-perception/perception_pcl/issues/139
+  list(REMOVE_ITEM PCL_IO_LIBRARIES
+    "vtkGUISupportQt"
+    "vtkGUISupportQtOpenGL"
+    "vtkGUISupportQtSQL"
+    "vtkGUISupportQtWebkit"
+    "vtkViewsQt"
+    "vtkRenderingQt"
+  )
+endif()
 
 find_package(CURL REQUIRED)
 
@@ -42,21 +45,20 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES get_file
   CATKIN_DEPENDS
-  std_msgs
-  visualization_msgs
-  geometry_msgs
-  tf2_geometry_msgs
-  autoware_msgs
+    autoware_msgs
+    geometry_msgs
+    std_msgs
+    tf2_geometry_msgs
+    visualization_msgs
+  DEPENDS Boost
 )
 
-###########
-## Build ##
-###########
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${PCL_IO_INCLUDE_DIRS}
   ${CURL_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIR}
 )
 
 add_library(get_file
@@ -75,7 +77,7 @@ target_link_libraries(vector_map_loader ${catkin_LIBRARIES} ${vector_map_LIBRARI
 add_dependencies(vector_map_loader ${catkin_EXPORTED_TARGETS})
 
 add_executable(lanelet2_map_loader nodes/lanelet2_map_loader/lanelet2_map_loader.cpp)
-target_link_libraries(lanelet2_map_loader ${catkin_LIBRARIES})
+target_link_libraries(lanelet2_map_loader ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 add_dependencies(lanelet2_map_loader ${catkin_EXPORTED_TARGETS})
 
 add_executable(lanelet2_map_visualization nodes/lanelet2_map_loader/lanelet2_map_visualization.cpp)
@@ -87,13 +89,14 @@ target_link_libraries(points_map_filter ${catkin_LIBRARIES})
 add_dependencies(points_map_filter ${catkin_EXPORTED_TARGETS})
 
 ## Install executables and/or libraries
-install(TARGETS
-  get_file
-  points_map_loader
-  vector_map_loader
-  lanelet2_map_loader
-  lanelet2_map_visualization
-  points_map_filter
+install(
+  TARGETS
+    get_file
+    points_map_loader
+    vector_map_loader
+    lanelet2_map_loader
+    lanelet2_map_visualization
+    points_map_filter
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
